@@ -1,0 +1,74 @@
+{
+  "location_id": "mixed",
+  "name": "Guwahati, Assam",
+  "category": "MIXED CHANGE",
+  "badge_icon": "\ud83c\udf0d",
+  "description": "Integrated riverfront, urban residential core, and hill forest landscape demonstrating simultaneous building, road, forest, and water changes.",
+  "center": [
+    26.17251375272418,
+    91.74996700226541
+  ],
+  "crs": "EPSG:4326",
+  "resolution_meters": 10.0,
+  "bounds": {
+    "south": 26.146655130004383,
+    "west": 91.72410837954561,
+    "north": 26.198372375443974,
+    "east": 91.7758256249852
+  },
+  "leaflet_bounds": [
+    [
+      26.146655130004383,
+      91.72410837954561
+    ],
+    [
+      26.198372375443974,
+      91.7758256249852
+    ]
+  ],
+  "width": 512,
+  "height": 512,
+  "reference_scene": {
+    "id": "mixed_ref",
+    "name": "Guwahati, Assam (2024-03-11)",
+    "date": "2024-03-11",
+    "file_path": "data/locations/mixed/reference/scene_20240311.tif",
+    "image_url": "/static/mixed_ref.png",
+    "transform": [
+      0.00010101024499920008,
+      0.0,
+      91.72410837954561,
+      0.0,
+      -0.00010101024499920008,
+      26.198372375443974,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "target_scene": {
+    "id": "mixed_tgt",
+    "name": "Guwahati, Assam (2026-03-06)",
+    "date": "2026-03-06",
+    "file_path": "data/locations/mixed/target/scene_20260306.tif",
+    "mask_path": "data/locations/mixed/target/cloud_mask.tif",
+    "image_url": "/static/mixed_tgt.png",
+    "transform": [
+      0.00010101024499920008,
+      0.0,
+      91.72410837954561,
+      0.0,
+      -0.00010101024499920008,
+      26.198372375443974,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "provenance": {
+    "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+    "source": "Copernicus Open Access Hub / AWS Open Data",
+    "license": "CC-BY 4.0 Open Access",
+    "offline": true
+  }
+}

@@ -1,0 +1,40 @@
+
+> frontend@0.0.0 dev
+> vite --host 127.0.0.1
+
+
+  VITE v8.2.2  ready in 206 ms
+
+  ➜  Local:   http://127.0.0.1:5173/
+  ➜  press h + enter to show help
+8:25:10 pm [vite] (client) hmr update /src/App.jsx
+8:25:30 pm [vite] (client) hmr update /src/index.css
+8:37:07 pm [vite] (client) hmr update /src/App.jsx
+8:37:07 pm [vite] (client) hmr update /src/index.css
+8:45:17 pm [vite] (client) hmr update /src/App.jsx
+8:45:17 pm [vite] (client) hmr update /src/index.css
+8:45:35 pm [vite] (client) hmr update /src/App.jsx
+8:48:14 pm [vite] (client) hmr update /src/App.jsx
+8:48:14 pm [vite] (client) hmr update /src/index.css
+8:49:47 pm [vite] (client) hmr update /src/App.jsx
+8:49:47 pm [vite] (client) hmr update /src/index.css
+8:54:36 pm [vite] (client) hmr update /src/App.jsx
+8:54:53 pm [vite] (client) hmr update /src/index.css
+8:56:59 pm [vite] (client) hmr update /src/index.css
+9:08:11 pm [vite] (client) hmr update /src/App.jsx
+9:08:37 pm [vite] (client) hmr update /src/App.jsx
+9:08:51 pm [vite] (client) hmr update /src/App.jsx
+9:09:00 pm [vite] (client) hmr update /src/App.jsx
+9:09:16 pm [vite] (client) hmr update /src/App.jsx
+9:09:27 pm [vite] (client) hmr update /src/App.jsx
+9:10:09 pm [vite] (client) hmr update /src/App.jsx
+9:10:21 pm [vite] (client) hmr update /src/App.jsx
+9:11:02 pm [vite] (client) hmr update /src/App.jsx
+9:11:02 pm [vite] (client) hmr update /src/index.css
+9:17:15 pm [vite] (client) hmr update /src/App.jsx
+9:21:13 pm [vite] (client) hmr update /src/App.jsx
+9:21:57 pm [vite] (client) hmr update /src/App.jsx
+9:23:19 pm [vite] (client) hmr update /src/index.css
+9:27:17 pm [vite] (client) hmr update /src/App.jsx
+9:27:55 pm [vite] (client) hmr update /src/App.jsx
+9:28:31 pm [vite] (client) hmr update /src/index.css

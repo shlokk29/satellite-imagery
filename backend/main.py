@@ -3,14 +3,13 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json
 import sqlite3
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import Response
 import numpy as np
 import rasterio
 import cv2
-
-from fastapi.responses import Response
 
 # Import custom modules
 from backend.database import init_db, save_scene, get_all_scenes, get_scene, save_changes, get_all_changes
@@ -20,7 +19,7 @@ from backend.models.segmentation import SemanticSegmenter
 from backend.change.change_detection import detect_changes, compute_pixel_scale_meters
 from backend.search.search import search_changes
 
-app = FastAPI(title="AI-Powered Satellite Change Intelligence API")
+app = FastAPI(title="AI-Powered Satellite Change Intelligence API (Multi-Location Multi-Temporal)")
 
 # Enable CORS for frontend
 app.add_middleware(
@@ -37,8 +36,10 @@ BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 # Setup directories
 UPLOAD_DIR = os.path.join(BASE_DIR, "data", "uploads")
 STATIC_DIR = os.path.join(os.path.dirname(__file__), "static")
+LOCATIONS_DIR = os.path.join(BASE_DIR, "data", "locations")
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(STATIC_DIR, exist_ok=True)
+os.makedirs(LOCATIONS_DIR, exist_ok=True)
 
 # Mount static directory to serve generated PNGs
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
@@ -46,34 +47,37 @@ app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 @app.on_event("startup")
 def startup_event():
     init_db()
-    # Auto-load the generated sample scenes if they exist
+    # Preload all 5 staged AOI demonstration locations from data/locations/locations_index.json
     try:
-        sample_dir = os.path.join(BASE_DIR, "data", "sample")
-        scene_2024_path = os.path.join(sample_dir, "before", "scene_2024.tif")
-        if not os.path.exists(scene_2024_path):
-            scene_2024_path = os.path.join(sample_dir, "scene_2024.tif")
-            
-        scene_2026_path = os.path.join(sample_dir, "after", "scene_2026.tif")
-        if not os.path.exists(scene_2026_path):
-            scene_2026_path = os.path.join(sample_dir, "scene_2026.tif")
-            
-        cloud_mask_path = os.path.join(sample_dir, "cloud_mask_2026.tif")
-        if not os.path.exists(cloud_mask_path):
-            cloud_mask_path = None
-            
-        if os.path.exists(scene_2024_path) and os.path.exists(scene_2026_path):
-            _ingest_local_file(scene_2024_path, None, "scene_2024", "Guwahati Sentinel-2 Scene", "2024-02-10")
-            _ingest_local_file(
-                scene_2026_path,
-                cloud_mask_path,
-                "scene_2026",
-                "Guwahati Sentinel-2 Scene",
-                "2026-03-06"
-            )
+        index_file = os.path.join(LOCATIONS_DIR, "locations_index.json")
+        if os.path.exists(index_file):
+            with open(index_file, "r", encoding="utf-8") as f:
+                locations = json.load(f)
+                
+            for loc in locations:
+                loc_id = loc['location_id']
+                ref_scene = loc['reference_scene']
+                tgt_scene = loc['target_scene']
+                
+                ref_tif = os.path.join(BASE_DIR, ref_scene['file_path'])
+                tgt_tif = os.path.join(BASE_DIR, tgt_scene['file_path'])
+                mask_tif = os.path.join(BASE_DIR, tgt_scene.get('mask_path', '')) if tgt_scene.get('mask_path') else None
+                
+                if os.path.exists(ref_tif):
+                    _ingest_local_file(
+                        ref_tif, None, ref_scene['id'], loc_id,
+                        ref_scene['name'], ref_scene['date']
+                    )
+                if os.path.exists(tgt_tif):
+                    _ingest_local_file(
+                        tgt_tif, mask_tif, tgt_scene['id'], loc_id,
+                        tgt_scene['name'], tgt_scene['date']
+                    )
+            print(f"Successfully loaded {len(locations)} multi-location demonstration AOIs.")
     except Exception as e:
-        print(f"Error preloading sample data: {e}")
+        print(f"Error preloading multi-location sample data: {e}")
 
-def _ingest_local_file(tif_path, mask_path, scene_id, name, date):
+def _ingest_local_file(tif_path, mask_path, scene_id, location_id, name, date):
     with rasterio.open(tif_path) as src:
         crs = str(src.crs)
         transform = list(src.transform)
@@ -96,7 +100,6 @@ def _ingest_local_file(tif_path, mask_path, scene_id, name, date):
         resolution = abs(float(transform[0]))
         
         # Render PNG for static view
-        # Read R, G, B (bands 1, 2, 3)
         r = src.read(1)
         g = src.read(2)
         b = src.read(3)
@@ -104,7 +107,7 @@ def _ingest_local_file(tif_path, mask_path, scene_id, name, date):
         png_path = os.path.join(STATIC_DIR, f"{scene_id}.png")
         cv2.imwrite(png_path, img)
         
-    save_scene(scene_id, name, tif_path, mask_path, date, crs, transform, leaflet_bounds, width, height, resolution)
+    save_scene(scene_id, location_id, name, tif_path, mask_path, date, crs, transform, leaflet_bounds, width, height, resolution)
 
 @app.get("/health")
 def health():
@@ -112,41 +115,36 @@ def health():
         "status": "ok",
         "offline": True,
         "service": "Antigravity Change Intelligence",
-        "engine": "FastAPI + OpenCV + Rasterio + Scikit-Learn"
+        "engine": "FastAPI + OpenCV + Rasterio + Scikit-Learn",
+        "archive_status": "6 Locations / 12 Sentinel-2 Observations Ready"
     }
 
-@app.post("/ingest")
-async def ingest(
-    name: str = Form(...),
-    date: str = Form(...),
-    file: UploadFile = File(...),
-    mask: UploadFile = File(None)
-):
-    scene_id = f"scene_{name.lower().replace(' ', '_')}_{date.replace('-', '')}"
-    tif_path = os.path.join(UPLOAD_DIR, f"{scene_id}.tif")
-    
-    # Save uploaded GeoTIFF
-    with open(tif_path, "wb") as f:
-        f.write(await file.read())
-        
-    mask_path = None
-    if mask:
-        mask_path = os.path.join(UPLOAD_DIR, f"{scene_id}_mask.tif")
-        with open(mask_path, "wb") as f:
-            f.write(await mask.read())
+@app.get("/locations")
+def get_locations():
+    """
+    Returns the list of all available multi-location demonstration AOIs with metadata and scenes.
+    """
+    index_file = os.path.join(LOCATIONS_DIR, "locations_index.json")
+    if os.path.exists(index_file):
+        with open(index_file, "r", encoding="utf-8") as f:
+            return json.load(f)
             
-    try:
-        _ingest_local_file(tif_path, mask_path, scene_id, name, date)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Failed to process GeoTIFF: {str(e)}")
-        
-    return {"status": "success", "scene_id": scene_id}
+    # Fallback default if index not yet generated
+    scenes = get_all_scenes()
+    return [{
+        "location_id": "mixed",
+        "name": "Mixed Landscape",
+        "category": "MIXED CHANGE",
+        "badge_icon": "🌍",
+        "description": "Demonstration satellite observation region.",
+        "center": [26.1725, 91.7499],
+        "crs": "EPSG:4326"
+    }]
 
 @app.get("/scenes")
-def get_scenes():
-    scenes = get_all_scenes()
+def get_scenes(location: str = Query(None)):
+    scenes = get_all_scenes(location_id=location)
     for s in scenes:
-        # Add static URL path for client image overlays
         s['image_url'] = f"/static/{s['id']}.png"
         if 'bounds' in s and isinstance(s['bounds'], str) and s['bounds']:
             try:
@@ -161,13 +159,15 @@ def get_scenes():
     return scenes
 
 @app.post("/change-detect")
-def run_change_detection(before_id: str, after_id: str):
+def run_change_detection(before_id: str, after_id: str, location_id: str = Query(None)):
     before_scene = get_scene(before_id)
     after_scene = get_scene(after_id)
     
     if not before_scene or not after_scene:
         raise HTTPException(status_code=404, detail="One or both scenes not found")
         
+    loc = location_id or before_scene.get('location_id') or "mixed"
+    
     try:
         # 1. Spatial alignment (reprojection + pixel ORB homography)
         ref_img, aligned_tgt, aligned_mask, ref_meta = align_geospatial(
@@ -177,8 +177,7 @@ def run_change_detection(before_id: str, after_id: str):
         )
         
         # Save aligned target image to static folder for visual verification
-        aligned_png_path = os.path.join(STATIC_DIR, "aligned_target.png")
-        # Save RGB in BGR format
+        aligned_png_path = os.path.join(STATIC_DIR, f"{loc}_aligned_target.png")
         cv2.imwrite(aligned_png_path, np.stack([aligned_tgt[2], aligned_tgt[1], aligned_tgt[0]], axis=-1))
         
         # 2. Preprocessing & Normalization
@@ -202,12 +201,13 @@ def run_change_detection(before_id: str, after_id: str):
         color_before = colors[seg_before]
         color_after = colors[seg_after]
         
-        cv2.imwrite(os.path.join(STATIC_DIR, "seg_before.png"), color_before)
-        cv2.imwrite(os.path.join(STATIC_DIR, "seg_after.png"), color_after)
+        cv2.imwrite(os.path.join(STATIC_DIR, f"{loc}_seg_before.png"), color_before)
+        cv2.imwrite(os.path.join(STATIC_DIR, f"{loc}_seg_after.png"), color_after)
         
         # 4. Change Detection & False Change Suppression
         transform = ref_meta['transform']
-        changes, change_map = detect_changes(seg_before, seg_after, valid_mask, transform)
+        dates = [before_scene.get('date', '2024'), after_scene.get('date', '2026')]
+        changes, change_map = detect_changes(seg_before, seg_after, valid_mask, transform, dates=dates, location_id=loc)
         
         # Calculate total scene area in km²
         H, W = seg_before.shape
@@ -217,34 +217,34 @@ def run_change_detection(before_id: str, after_id: str):
         
         # Render change map overlay as BGRA with full TRANSPARENCY for no-change pixels
         # 0: Transparent (alpha=0)
-        # 1: NEW CONSTRUCTION -> Red [B=0, G=0, R=240, A=220]
+        # 1: BUILDING CHANGE -> Red [B=0, G=0, R=240, A=220]
         # 2: ROAD CHANGE -> Yellow [B=0, G=220, R=245, A=220]
-        # 3: VEGETATION CHANGE -> Green [B=40, G=200, R=50, A=220]
-        # 4: WATER CHANGE -> Cyan [B=240, G=220, R=0, A=220]
+        # 3: FOREST CHANGE -> Green [B=40, G=200, R=50, A=220]
+        # 4: RIVER CHANGE -> Cyan [B=240, G=220, R=0, A=220]
         change_rgba = np.zeros((H, W, 4), dtype=np.uint8)
         change_rgba[change_map == 1] = [0, 0, 240, 220]
         change_rgba[change_map == 2] = [0, 220, 245, 220]
         change_rgba[change_map == 3] = [40, 200, 50, 220]
         change_rgba[change_map == 4] = [240, 220, 0, 220]
         
-        cv2.imwrite(os.path.join(STATIC_DIR, "change_mask.png"), change_rgba)
+        cv2.imwrite(os.path.join(STATIC_DIR, f"{loc}_change_mask.png"), change_rgba)
         
-        # Save to SQLite
-        save_changes(changes)
+        # Save to SQLite under this location
+        save_changes(changes, location_id=loc)
         
         # Calculate summary statistics
         counts = {
             "NEW CONSTRUCTION": sum(1 for c in changes if c['type'] == "NEW CONSTRUCTION"),
+            "VEGETATION LOSS": sum(1 for c in changes if c['type'] == "VEGETATION LOSS"),
+            "WATER EXTENT CHANGE": sum(1 for c in changes if c['type'] == "WATER EXTENT CHANGE"),
             "ROAD CHANGE": sum(1 for c in changes if c['type'] == "ROAD CHANGE"),
-            "VEGETATION CHANGE": sum(1 for c in changes if c['type'] == "VEGETATION CHANGE"),
-            "WATER CHANGE": sum(1 for c in changes if c['type'] == "WATER CHANGE"),
         }
         
         summary = f"{len(changes)} significant change events verified across {total_scene_sqkm} km² AOI. " + ", ".join([f"{v} {k.lower()}s" for k, v in counts.items() if v > 0])
         
         # Cache segmentation arrays in app state for search
         app.state.seg_after = seg_after
-        app.state.last_changes = changes
+        app.state.last_location = loc
         
         # Extract bounds
         ref_bounds = before_scene.get('bounds')
@@ -256,17 +256,18 @@ def run_change_detection(before_id: str, after_id: str):
         
         return {
             "status": "success",
+            "location_id": loc,
             "summary": summary,
             "changes_count": len(changes),
             "total_area_sqkm": total_scene_sqkm,
-            "dates": [before_scene.get('date', '2024'), after_scene.get('date', '2026')],
+            "dates": dates,
             "breakdown": counts,
             "bounds": ref_bounds,
             "changes": changes,
-            "before_seg_url": "/static/seg_before.png",
-            "after_seg_url": "/static/seg_after.png",
-            "change_mask_url": "/static/change_mask.png",
-            "aligned_target_url": "/static/aligned_target.png"
+            "before_seg_url": f"/static/{loc}_seg_before.png",
+            "after_seg_url": f"/static/{loc}_seg_after.png",
+            "change_mask_url": f"/static/{loc}_change_mask.png",
+            "aligned_target_url": f"/static/{loc}_aligned_target.png"
         }
         
     except Exception as e:
@@ -275,23 +276,23 @@ def run_change_detection(before_id: str, after_id: str):
         raise HTTPException(status_code=500, detail=f"Pipeline error: {str(e)}")
 
 @app.get("/changes")
-def get_changes():
-    return get_all_changes()
+def get_changes(location: str = Query(None)):
+    return get_all_changes(location_id=location)
 
 @app.post("/search")
-def search(query: str):
-    # Retrieve changes from database or state
-    changes = get_all_changes()
+def search(query: str, location: str = Query(None)):
+    changes = get_all_changes(location_id=location)
     seg_after = getattr(app.state, "seg_after", None)
-    results = search_changes(query, changes, seg_after)
+    results = search_changes(query, changes, seg_after, location_id=location)
     return results
 
 @app.get("/export")
-def export_report(format: str = "geojson"):
+def export_report(format: str = "geojson", location: str = Query(None)):
     """
     Export change intelligence results in GeoJSON, CSV, or JSON format.
     """
-    changes = get_all_changes()
+    changes = get_all_changes(location_id=location)
+    loc_tag = f"_{location}" if location else ""
     
     if format.lower() == "geojson":
         features = []
@@ -300,6 +301,7 @@ def export_report(format: str = "geojson"):
                 "type": "Feature",
                 "properties": {
                     "id": c.get("id"),
+                    "location_id": c.get("location_id"),
                     "type": c.get("type"),
                     "confidence": c.get("confidence"),
                     "area_sqm": c.get("area_sqm"),
@@ -318,7 +320,7 @@ def export_report(format: str = "geojson"):
             
         geojson_doc = {
             "type": "FeatureCollection",
-            "name": "Antigravity_Change_Intelligence_Export",
+            "name": f"Antigravity_Change_Intelligence_Export{loc_tag}",
             "crs": {
                 "type": "name",
                 "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS84"}
@@ -328,7 +330,7 @@ def export_report(format: str = "geojson"):
         return Response(
             content=json.dumps(geojson_doc, indent=2),
             media_type="application/geo+json",
-            headers={"Content-Disposition": "attachment; filename=change_intelligence_export.geojson"}
+            headers={"Content-Disposition": f"attachment; filename=change_intelligence{loc_tag}.geojson"}
         )
         
     elif format.lower() == "csv":
@@ -337,7 +339,7 @@ def export_report(format: str = "geojson"):
         output = io.StringIO()
         writer = csv.writer(output)
         writer.writerow([
-            "ID", "Change_Type", "Confidence_Score", "Area_Sqm", "Area_Pixels",
+            "ID", "Location", "Change_Type", "Confidence_Score", "Area_Sqm", "Area_Pixels",
             "Centroid_Lat", "Centroid_Lon", "Dist_Road_Meters", "Dist_Water_Meters",
             "Dates", "Explanation"
         ])
@@ -346,6 +348,7 @@ def export_report(format: str = "geojson"):
             lon = c.get("centroid", [0,0])[1] if c.get("centroid") else ""
             writer.writerow([
                 c.get("id"),
+                c.get("location_id"),
                 c.get("type"),
                 c.get("confidence"),
                 c.get("area_sqm"),
@@ -360,12 +363,13 @@ def export_report(format: str = "geojson"):
         return Response(
             content=output.getvalue(),
             media_type="text/csv",
-            headers={"Content-Disposition": "attachment; filename=change_intelligence_export.csv"}
+            headers={"Content-Disposition": f"attachment; filename=change_intelligence{loc_tag}.csv"}
         )
         
     else: # JSON format
         report = {
             "title": "Antigravity Change Intelligence Report",
+            "location_id": location,
             "timestamp": "2026-08-29",
             "total_changes": len(changes),
             "changes": changes
@@ -373,7 +377,7 @@ def export_report(format: str = "geojson"):
         return Response(
             content=json.dumps(report, indent=2),
             media_type="application/json",
-            headers={"Content-Disposition": "attachment; filename=change_intelligence_report.json"}
+            headers={"Content-Disposition": f"attachment; filename=change_intelligence{loc_tag}.json"}
         )
 
 if __name__ == '__main__':

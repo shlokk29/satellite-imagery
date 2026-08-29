@@ -1,0 +1,327 @@
+Successfully loaded 6 multi-location demonstration AOIs.
+INFO:     127.0.0.1:51431 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62463 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62463 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49671 - "GET /static/vit_ap_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62295 - "GET /static/vit_ap_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49935 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56765 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56765 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53090 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56765 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53090 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58752 - "GET /static/vit_ap_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64768 - "GET /static/vit_ap_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56765 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57230 - "GET /scenes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57230 - "GET /changes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56964 - "GET /static/river_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56211 - "GET /static/river_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57230 - "POST /change-detect?before_id=river_ref&after_id=river_tgt&location_id=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50079 - "GET /static/river_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55700 - "GET /static/river_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65415 - "POST /change-detect?before_id=river_ref&after_id=river_tgt&location_id=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65415 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50380 - "GET /static/river_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65415 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52825 - "GET /static/mixed_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50380 - "GET /static/mixed_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65415 - "POST /change-detect?before_id=mixed_ref&after_id=mixed_tgt&location_id=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50393 - "GET /static/mixed_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60229 - "GET /static/mixed_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62421 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64257 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62421 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61256 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64257 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52515 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51588 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:52851 - "POST /change-detect?before_id=vit_ap_ref&after_id=vit_ap_tgt&location_id=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53242 - "GET /static/vit_ap_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53781 - "GET /static/vit_ap_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49672 - "GET /static/vit_ap_aligned_target.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59834 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64325 - "GET /scenes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52083 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64325 - "GET /changes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52083 - "GET /static/river_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56891 - "GET /static/river_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49164 - "POST /change-detect?before_id=river_ref&after_id=river_tgt&location_id=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54342 - "GET /static/river_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60205 - "GET /static/river_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57970 - "POST /change-detect?before_id=river_ref&after_id=river_tgt&location_id=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57970 - "GET /scenes?location=urban HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58536 - "GET /static/river_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57970 - "GET /changes?location=urban HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58536 - "GET /static/urban_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50673 - "GET /static/urban_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57970 - "POST /change-detect?before_id=urban_ref&after_id=urban_tgt&location_id=urban HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58536 - "GET /static/urban_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50673 - "GET /static/urban_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57067 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57067 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53598 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53598 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53598 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62089 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65336 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57067 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51371 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59565 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63526 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63526 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63526 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63526 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63526 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61889 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56844 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54233 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50184 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50184 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50184 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62124 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50832 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+ INFO:     127.0.0.1:49676 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49676 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49676 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49676 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49676 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49676 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54719 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64612 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53121 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+Successfully loaded 6 multi-location demonstration AOIs.
+INFO:     127.0.0.1:58171 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58171 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53837 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53837 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58171 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58171 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55713 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55713 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55713 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55713 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55713 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59877 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58167 - "GET /static/mixed_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57019 - "GET /static/mixed_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56586 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53557 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53557 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:56586 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57800 - "GET / HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:57800 - "GET /favicon.ico HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:59409 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55006 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55006 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64246 - "GET /static/mixed_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60686 - "GET /static/mixed_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55006 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55006 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59409 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64246 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60686 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59409 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58837 - "GET /static/vit_ap_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57791 - "GET /static/vit_ap_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58837 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57791 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55976 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62194 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55976 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57791 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58837 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:55976 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52732 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52732 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52817 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50360 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57129 - "POST /change-detect?before_id=vit_ap_ref&after_id=vit_ap_tgt&location_id=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51906 - "GET /static/vit_ap_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53432 - "GET /static/vit_ap_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57129 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57129 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51906 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:53432 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:57129 - "GET /scenes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57129 - "GET /changes?location=river HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51906 - "GET /static/river_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53432 - "GET /static/river_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58942 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58942 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51487 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51487 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51487 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55699 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62755 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:51487 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50661 - "POST /change-detect?before_id=mixed_ref&after_id=mixed_tgt&location_id=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54597 - "GET /static/mixed_aligned_target.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61891 - "GET /static/mixed_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50661 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:59133 - "GET /static/mixed_aligned_target.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63225 - "GET /static/mixed_aligned_target.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63225 - "GET /static/mixed_aligned_target.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50314 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50314 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63281 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63281 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50926 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50926 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:50314 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63281 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64931 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64931 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52338 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52338 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61433 - "GET /static/mixed_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64931 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59059 - "GET /static/mixed_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52338 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60090 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60090 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51322 - "GET /static/vit_ap_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51837 - "GET /static/vit_ap_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:51013 - "POST /change-detect?before_id=vit_ap_ref&after_id=vit_ap_tgt&location_id=concept_demo HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63487 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63487 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63487 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63808 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63808 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57970 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63116 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:63487 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63487 - "POST /change-detect?before_id=mixed_ref&after_id=mixed_tgt&location_id=concept_demo HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50849 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50849 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50849 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50849 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50849 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53703 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59890 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62118 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:62739 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62739 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62739 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62739 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62739 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59501 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64888 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:60854 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61178 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61178 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61178 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61178 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61178 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53428 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60017 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64184 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:49841 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49841 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49841 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49841 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49841 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54536 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59820 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59820 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56183 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52853 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52853 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52853 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52853 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52853 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:56606 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65141 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65141 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52192 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52192 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:65141 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:52192 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63400 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63400 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59553 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59553 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:63400 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59553 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59653 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59653 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59653 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59653 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59653 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:53785 - "GET /static/mixed_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:58041 - "GET /static/mixed_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:54838 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:64188 - "GET /scenes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62413 - "GET /static/vit_ap_tgt.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:65067 - "GET /static/vit_ap_ref.png HTTP/1.1" 304 Not Modified
+INFO:     127.0.0.1:64188 - "GET /changes?location=vit_ap HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55682 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54779 - "GET /changes?location=mixed HTTP/1.1" 200 OK

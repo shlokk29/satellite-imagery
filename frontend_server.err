@@ -1,0 +1,23 @@
+9:21:14 pm [vite] (client) [Unhandled error] ReferenceError: ConceptualDemo is not defined
+ > App src/App.jsx:873:26
+    871 |          {/* Center Panel - Synchronized 3-Pane Leaflet Map Views */}
+    872 |          <div className="map-workspace">
+    873 |          {isConceptDemo ? <ConceptualDemo regions={changes} selectedId={selectedChange?.id} onSelect={handleSelectChan...
+        |                            ^
+    874 |          <div className="maps-grid">
+    875 |            {/* Pane 1: Reference Satellite Image (T1) */}
+ > Object.react_stack_bottom_frame node_modules/react-dom/cjs/react-dom-client.development.js:25904:19
+ > renderWithHooks node_modules/react-dom/cjs/react-dom-client.development.js:7662:21
+ > updateFunctionComponent node_modules/react-dom/cjs/react-dom-client.development.js:10166:18
+ > beginWork node_modules/react-dom/cjs/react-dom-client.development.js:11778:17
+ > runWithFiberInDEV node_modules/react-dom/cjs/react-dom-client.development.js:871:29
+ > performUnitOfWork node_modules/react-dom/cjs/react-dom-client.development.js:17641:21
+ > workLoopSync node_modules/react-dom/cjs/react-dom-client.development.js:17469:40
+ > renderRootSync node_modules/react-dom/cjs/react-dom-client.development.js:17450:10
+ > performWorkOnRoot node_modules/react-dom/cjs/react-dom-client.development.js:16583:34
+
+9:21:14 pm [vite] (client) [console.warn] An error occurred in the <App> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+

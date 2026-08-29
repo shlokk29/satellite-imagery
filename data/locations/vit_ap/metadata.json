@@ -1,0 +1,89 @@
+{
+  "location_id": "vit_ap",
+  "name": "VIT-AP University, Amaravati, Andhra Pradesh, India",
+  "category": "NEW BUILT-UP / CONSTRUCTION CHANGE",
+  "badge_icon": "\ud83c\udfeb",
+  "featured": true,
+  "description": "Featured demonstration: the same VIT-AP campus AOI, observed in real Sentinel-2 imagery five years apart.",
+  "center": [
+    16.4873,
+    80.5037
+  ],
+  "crs": "EPSG:4326",
+  "resolution_meters": 10.0,
+  "bounds": {
+    "south": 16.478230127764213,
+    "west": 80.48583984375,
+    "north": 16.499299167397577,
+    "east": 80.5078125
+  },
+  "leaflet_bounds": [
+    [
+      16.478230127764213,
+      80.48583984375
+    ],
+    [
+      16.499299167397577,
+      80.5078125
+    ]
+  ],
+  "width": 512,
+  "height": 512,
+  "reference_scene": {
+    "id": "vit_ap_ref",
+    "name": "VIT-AP University, Amaravati, Andhra Pradesh, India (2021-03-06)",
+    "date": "2021-03-06",
+    "scene_id": "S2B_44QMD_20210306_2_L2A",
+    "cloud_cover_percent": 1.8e-05,
+    "file_path": "data/locations/vit_ap/reference/scene_20210306.tif",
+    "image_url": "/static/vit_ap_ref.png",
+    "transform": [
+      4.291534423828125e-05,
+      0.0,
+      80.48583984375,
+      0.0,
+      -4.115046803391392e-05,
+      16.499299167397577,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "target_scene": {
+    "id": "vit_ap_tgt",
+    "name": "VIT-AP University, Amaravati, Andhra Pradesh, India (2026-03-05)",
+    "date": "2026-03-05",
+    "scene_id": "S2C_44QMD_20260305_0_L2A",
+    "cloud_cover_percent": 6.8e-05,
+    "file_path": "data/locations/vit_ap/target/scene_20260305.tif",
+    "image_url": "/static/vit_ap_tgt.png",
+    "transform": [
+      4.291534423828125e-05,
+      0.0,
+      80.48583984375,
+      0.0,
+      -4.115046803391392e-05,
+      16.499299167397577,
+      0.0,
+      0.0,
+      1.0
+    ],
+    "mask_path": "data/locations/vit_ap/target/cloud_mask.tif"
+  },
+  "provenance": {
+    "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+    "source": "AWS Open Data Sentinel-2 COGs / Copernicus",
+    "license": "CC-BY 4.0 Open Access",
+    "offline": true,
+    "validation": {
+      "same_aoi": true,
+      "valid_pixels": 262144,
+      "rgb_bands": [
+        "B04",
+        "B03",
+        "B02"
+      ],
+      "nir_band": "B08"
+    }
+  }
+}

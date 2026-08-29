@@ -8,16 +8,16 @@ import rasterio
 # Class IDs: 0: Bare land, 1: Vegetation, 2: Water, 3: Road, 4: Building
 def get_change_type(class_before, class_after):
     if class_before != class_after:
-        if class_after == 4: # Building
-            return "NEW CONSTRUCTION"
-        elif class_after == 3: # Road
+        if class_after == 4 or (class_before == 0 and class_after == 4): # Building expansion
+            return "BUILDING CHANGE"
+        elif class_after == 3 or (class_before != 3 and class_after == 3): # Road expansion
             return "ROAD CHANGE"
-        elif class_before == 1 and class_after == 0: # Veg -> Bare land
-            return "VEGETATION CHANGE" # Vegetation reduction
-        elif class_before == 0 and class_after == 1: # Bare land -> Veg
-            return "VEGETATION CHANGE" # Vegetation growth
-        elif class_before == 2 or class_after == 2: # Water involved
-            return "WATER CHANGE"
+        elif class_before == 1 and class_after != 1: # Veg loss / clearing
+            return "FOREST CHANGE"
+        elif class_before != 1 and class_after == 1: # Veg growth
+            return "FOREST CHANGE"
+        elif class_before == 2 or class_after == 2: # Water shift
+            return "RIVER CHANGE"
     return None
 
 def compute_pixel_scale_meters(transform, sample_lat=26.1448):
@@ -35,7 +35,7 @@ def compute_pixel_scale_meters(transform, sample_lat=26.1448):
     pixel_res_m = (dx_m + dy_m) / 2.0
     return pixel_res_m, pixel_area_sqm
 
-def detect_changes(seg_before, seg_after, valid_mask, transform):
+def detect_changes(seg_before, seg_after, valid_mask, transform, dates=None, location_id=None):
     """
     Compares two semantic maps and extracts changed regions as georeferenced polygons
     with real geospatial metrics (centroid, area in m², distance to road, distance to water).
@@ -44,6 +44,8 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
     transform: rasterio Affine transform to convert pixel coords to lat/lon.
     """
     H, W = seg_before.shape
+    dates = dates or ["2024", "2026"]
+    date_str = f"{dates[0]} → {dates[1]}"
     
     # Approximate geographic center latitude for meter scaling
     center_lon, center_lat = transform * (W / 2.0, H / 2.0)
@@ -63,13 +65,13 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
     # Initialize change classification map
     change_map = np.zeros((H, W), dtype=np.uint8)
     
-    # Define our four primary change categories
-    # 1: NEW CONSTRUCTION, 2: ROAD CHANGE, 3: VEGETATION CHANGE, 4: WATER CHANGE
+    # Primary categories:
+    # 1: BUILDING CHANGE, 2: ROAD CHANGE, 3: FOREST CHANGE, 4: RIVER CHANGE
     change_id_map = {
-        "NEW CONSTRUCTION": 1,
+        "BUILDING CHANGE": 1,
         "ROAD CHANGE": 2,
-        "VEGETATION CHANGE": 3,
-        "WATER CHANGE": 4
+        "FOREST CHANGE": 3,
+        "RIVER CHANGE": 4
     }
     
     # Pixel-wise classification
@@ -90,16 +92,19 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
     for ctype, cid in change_id_map.items():
         ctype_mask = (change_map == cid).astype(np.uint8) * 255
         
-        # Apply morphological opening & closing to suppress noisy/misregistration pixels
-        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
+        # Opening removes isolated classification flicker; closing reconnects a
+        # coherent region split by minor co-registration differences.
+        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         filtered_mask = cv2.morphologyEx(ctype_mask, cv2.MORPH_OPEN, kernel)
-        filtered_mask = cv2.morphologyEx(filtered_mask, cv2.MORPH_CLOSE, kernel)
+        filtered_mask = cv2.morphologyEx(filtered_mask, cv2.MORPH_CLOSE, kernel, iterations=2)
         
         contours, _ = cv2.findContours(filtered_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         
         for contour in contours:
             area_px = cv2.contourArea(contour)
-            if area_px < 25: # Suppress small noise (< 25 pixels, approx 250 sq meters)
+            # Suppress components below a physical ground-area threshold, rather
+            # than relying on a fixed pixel count across differently sized AOIs.
+            if area_px * pixel_area_sqm < 400:
                 continue
                 
             # Simplify contour to make GeoJSON compact and clean
@@ -142,12 +147,13 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
             dist_road_m = round(min_dist_road_px * pixel_res_m, 1)
             dist_water_m = round(min_dist_water_px * pixel_res_m, 1)
             
-            # Compute Change Score (0.0 to 1.0)
-            # Based on contour area scale and shape compactness (isoperimetric quotient)
+            # Confidence is calculated from component extent and spatial coherence;
+            # no location-specific score is authored into the demo data.
             perimeter = cv2.arcLength(contour, True)
             compactness = (4 * np.pi * area_px) / (perimeter ** 2) if perimeter > 0 else 0
-            score = 0.65 + 0.35 * min(1.0, area_px / 180.0) * min(1.0, max(0.2, compactness))
-            score = round(float(min(0.99, max(0.50, score))), 2)
+            extent_evidence = min(1.0, (area_px * pixel_area_sqm) / 5000.0)
+            coherence_evidence = min(1.0, max(0.0, compactness))
+            score = round(float(0.5 * extent_evidence + 0.5 * coherence_evidence), 2)
             
             # Extract bounding box in pixels for before/after view crops
             px_coords = approx.reshape(-1, 2)
@@ -160,22 +166,22 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
             bbox_coords = [lon_min, lat_min, lon_max, lat_max]
             
             # Generate factual natural language explanation
-            if ctype == "NEW CONSTRUCTION":
+            if ctype == "BUILDING CHANGE":
                 if dist_road_m < 60:
-                    explanation = f"New built-up structures ({area_sqm:,} m²) detected on former bare land, situated {dist_road_m:.0f}m from primary arterial road."
+                    explanation = f"Built-up area increased ({area_sqm:,} m²) between {date_str}, situated {dist_road_m:.0f}m from nearest road."
                 else:
-                    explanation = f"New built-up structures ({area_sqm:,} m²) detected where bare land previously existed between observation dates."
+                    explanation = f"Built-up surface increased ({area_sqm:,} m²) between the selected observations ({date_str})."
             elif ctype == "ROAD CHANGE":
-                explanation = f"New transport corridor / paved connector road ({area_sqm:,} m²) expanding regional infrastructure network."
-            elif ctype == "VEGETATION CHANGE":
+                explanation = f"Transport / road infrastructure corridor expanded ({area_sqm:,} m²) between {date_str}."
+            elif ctype == "FOREST CHANGE":
                 if dist_water_m < 80:
-                    explanation = f"Vegetation canopy loss / land clearing ({area_sqm:,} m²) detected {dist_water_m:.0f}m from water corridor."
+                    explanation = f"Vegetated canopy transition ({area_sqm:,} m²) observed {dist_water_m:.0f}m from water corridor ({date_str})."
                 else:
-                    explanation = f"Vegetation canopy loss / land conversion ({area_sqm:,} m²) detected in previously vegetated terrain."
-            elif ctype == "WATER CHANGE":
-                explanation = f"Surface water extent expansion / retention basin ({area_sqm:,} m²) detected adjoining river channel."
+                    explanation = f"Vegetated area transitioned ({area_sqm:,} m²) between the selected observations ({date_str})."
+            elif ctype == "RIVER CHANGE":
+                explanation = f"Water extent and shoreline shifted ({area_sqm:,} m²) between the selected observations ({date_str})."
             else:
-                explanation = f"Significant spectral transition detected covering {area_sqm:,} m²."
+                explanation = f"Observable surface transition detected covering {area_sqm:,} m² between {date_str}."
             
             # Format geometry for GeoJSON
             geom = {
@@ -183,8 +189,18 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
                 "coordinates": [coords]
             }
             
+            # Map type to new naming convention
+            display_type = ctype
+            if ctype == "BUILDING CHANGE":
+                display_type = "NEW CONSTRUCTION"
+            elif ctype == "FOREST CHANGE":
+                display_type = "VEGETATION LOSS"
+            elif ctype == "RIVER CHANGE":
+                display_type = "WATER EXTENT CHANGE"
+            
             detected_changes.append({
-                "type": ctype,
+                "location_id": location_id or "mixed",
+                "type": display_type,
                 "confidence": score,
                 "area_pixels": int(area_px),
                 "area_sqm": area_sqm,
@@ -196,7 +212,7 @@ def detect_changes(seg_before, seg_after, valid_mask, transform):
                 "geometry": geom,
                 "bbox": bbox_coords,
                 "pixel_bbox": [int(min_x), int(min_y), int(max_x), int(max_y)],
-                "dates": ["2024", "2026"],
+                "dates": dates,
                 "suppression_checks": [
                     "cloud_shadow_masking",
                     "geospatial_alignment",

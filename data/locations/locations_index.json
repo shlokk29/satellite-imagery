@@ -1,0 +1,460 @@
+[
+  {
+    "location_id": "vit_ap",
+    "name": "VIT-AP University, Amaravati, Andhra Pradesh, India",
+    "category": "NEW BUILT-UP / CONSTRUCTION CHANGE",
+    "badge_icon": "\ud83c\udfeb",
+    "description": "Campus AOI observed in two locally cached Sentinel-2 Level-2A acquisitions.",
+    "center": [
+      16.4873,
+      80.5037
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 16.478230127764213,
+      "west": 80.48583984375,
+      "north": 16.499299167397577,
+      "east": 80.5078125
+    },
+    "leaflet_bounds": [
+      [
+        16.478230127764213,
+        80.48583984375
+      ],
+      [
+        16.499299167397577,
+        80.5078125
+      ]
+    ],
+    "width": 512,
+    "height": 512,
+    "reference_scene": {
+      "id": "vit_ap_ref",
+      "name": "VIT-AP University, Amaravati, Andhra Pradesh, India (2021-03-06)",
+      "date": "2021-03-06",
+      "scene_id": "S2B_44QMD_20210306_2_L2A",
+      "cloud_cover_percent": 1.8e-05,
+      "file_path": "data/locations/vit_ap/reference/scene_20210306.tif",
+      "image_url": "/static/vit_ap_ref.png",
+      "transform": [
+        4.291534423828125e-05,
+        0.0,
+        80.48583984375,
+        0.0,
+        -4.115046803391392e-05,
+        16.499299167397577,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "vit_ap_tgt",
+      "name": "VIT-AP University, Amaravati, Andhra Pradesh, India (2026-03-05)",
+      "date": "2026-03-05",
+      "scene_id": "S2C_44QMD_20260305_0_L2A",
+      "cloud_cover_percent": 6.8e-05,
+      "file_path": "data/locations/vit_ap/target/scene_20260305.tif",
+      "image_url": "/static/vit_ap_tgt.png",
+      "transform": [
+        4.291534423828125e-05,
+        0.0,
+        80.48583984375,
+        0.0,
+        -4.115046803391392e-05,
+        16.499299167397577,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "mask_path": "data/locations/vit_ap/target/cloud_mask.tif"
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "AWS Open Data Sentinel-2 COGs / Copernicus",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true,
+      "validation": {
+        "same_aoi": true,
+        "valid_pixels": 262144,
+        "rgb_bands": [
+          "B04",
+          "B03",
+          "B02"
+        ],
+        "nir_band": "B08"
+      }
+    }
+  },
+  {
+    "location_id": "forest",
+    "name": "Garbhanga Forest, Assam",
+    "category": "VEGETATION LOSS",
+    "badge_icon": "\ud83c\udf32",
+    "description": "Garbhanga Forest Reserve & Wildlife Sanctuary corridor monitoring tree canopy transitions, vegetation loss, and forest density.",
+    "center": [
+      26.162412728224258,
+      91.74229022364547
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 26.146655130004383,
+      "west": 91.72410837954561,
+      "north": 26.178170326444132,
+      "east": 91.76047206774533
+    },
+    "leaflet_bounds": [
+      [
+        26.146655130004383,
+        91.72410837954561
+      ],
+      [
+        26.178170326444132,
+        91.76047206774533
+      ]
+    ],
+    "width": 360,
+    "height": 312,
+    "reference_scene": {
+      "id": "forest_ref",
+      "name": "Garbhanga Forest, Assam (2024-02-10)",
+      "date": "2024-02-10",
+      "file_path": "data/locations/forest/reference/scene_20240210.tif",
+      "image_url": "/static/forest_ref.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.178170326444132,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "forest_tgt",
+      "name": "Garbhanga Forest, Assam (2026-03-06)",
+      "date": "2026-03-06",
+      "file_path": "data/locations/forest/target/scene_20260306.tif",
+      "mask_path": "data/locations/forest/target/cloud_mask.tif",
+      "image_url": "/static/forest_tgt.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.178170326444132,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "Copernicus Open Access Hub / AWS Open Data",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true
+    }
+  },
+  {
+    "location_id": "river",
+    "name": "Brahmaputra River, Assam",
+    "category": "WATER EXTENT CHANGE",
+    "badge_icon": "\ud83c\udf0a",
+    "description": "Brahmaputra River main braided channel and sandbar evolution tracking multi-year hydrological shifts and shoreline displacement.",
+    "center": [
+      26.184230941144087,
+      91.75037104324541
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 26.1700895068442,
+      "west": 91.72915889179558,
+      "north": 26.198372375443974,
+      "east": 91.77158319469524
+    },
+    "leaflet_bounds": [
+      [
+        26.1700895068442,
+        91.72915889179558
+      ],
+      [
+        26.198372375443974,
+        91.77158319469524
+      ]
+    ],
+    "width": 420,
+    "height": 280,
+    "reference_scene": {
+      "id": "river_ref",
+      "name": "Brahmaputra River, Assam (2024-02-10)",
+      "date": "2024-02-10",
+      "file_path": "data/locations/river/reference/scene_20240210.tif",
+      "image_url": "/static/river_ref.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72915889179558,
+        0.0,
+        -0.00010101024499920008,
+        26.198372375443974,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "river_tgt",
+      "name": "Brahmaputra River, Assam (2024-10-22)",
+      "date": "2024-10-22",
+      "file_path": "data/locations/river/target/scene_20241022.tif",
+      "mask_path": "data/locations/river/target/cloud_mask.tif",
+      "image_url": "/static/river_tgt.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72915889179558,
+        0.0,
+        -0.00010101024499920008,
+        26.198372375443974,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "Copernicus Open Access Hub / AWS Open Data",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true
+    }
+  },
+  {
+    "location_id": "urban",
+    "name": "Dispur, Assam",
+    "category": "NEW CONSTRUCTION",
+    "badge_icon": "\ud83c\udfe2",
+    "description": "Guwahati Metropolis Eastern Expansion Corridor analyzing commercial, industrial, and residential built-up development.",
+    "center": [
+      26.164432933124242,
+      91.75905792431533
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 26.146655130004383,
+      "west": 91.74229022364547,
+      "north": 26.1822107362441,
+      "east": 91.7758256249852
+    },
+    "leaflet_bounds": [
+      [
+        26.146655130004383,
+        91.74229022364547
+      ],
+      [
+        26.1822107362441,
+        91.7758256249852
+      ]
+    ],
+    "width": 332,
+    "height": 352,
+    "reference_scene": {
+      "id": "urban_ref",
+      "name": "Dispur, Assam (2024-02-10)",
+      "date": "2024-02-10",
+      "file_path": "data/locations/urban/reference/scene_20240210.tif",
+      "image_url": "/static/urban_ref.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.74229022364547,
+        0.0,
+        -0.00010101024499920008,
+        26.1822107362441,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "urban_tgt",
+      "name": "Dispur, Assam (2026-03-06)",
+      "date": "2026-03-06",
+      "file_path": "data/locations/urban/target/scene_20260306.tif",
+      "mask_path": "data/locations/urban/target/cloud_mask.tif",
+      "image_url": "/static/urban_tgt.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.74229022364547,
+        0.0,
+        -0.00010101024499920008,
+        26.1822107362441,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "Copernicus Open Access Hub / AWS Open Data",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true
+    }
+  },
+  {
+    "location_id": "mixed",
+    "name": "Guwahati, Assam",
+    "category": "MIXED CHANGE",
+    "badge_icon": "\ud83c\udf0d",
+    "description": "Integrated riverfront, urban residential core, and hill forest landscape demonstrating simultaneous building, road, forest, and water changes.",
+    "center": [
+      26.17251375272418,
+      91.74996700226541
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 26.146655130004383,
+      "west": 91.72410837954561,
+      "north": 26.198372375443974,
+      "east": 91.7758256249852
+    },
+    "leaflet_bounds": [
+      [
+        26.146655130004383,
+        91.72410837954561
+      ],
+      [
+        26.198372375443974,
+        91.7758256249852
+      ]
+    ],
+    "width": 512,
+    "height": 512,
+    "reference_scene": {
+      "id": "mixed_ref",
+      "name": "Guwahati, Assam (2024-03-11)",
+      "date": "2024-03-11",
+      "file_path": "data/locations/mixed/reference/scene_20240311.tif",
+      "image_url": "/static/mixed_ref.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.198372375443974,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "mixed_tgt",
+      "name": "Guwahati, Assam (2026-03-06)",
+      "date": "2026-03-06",
+      "file_path": "data/locations/mixed/target/scene_20260306.tif",
+      "mask_path": "data/locations/mixed/target/cloud_mask.tif",
+      "image_url": "/static/mixed_tgt.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.198372375443974,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "Copernicus Open Access Hub / AWS Open Data",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true
+    }
+  },
+  {
+    "location_id": "wetland",
+    "name": "Deepor Beel, Assam",
+    "category": "WATER EXTENT CHANGE",
+    "badge_icon": "\ud83c\udf3f",
+    "description": "Deepor Beel Ramsar Wetland basin tracking open water surface area and aquatic macrophyte variations between multi-year dry seasons.",
+    "center": [
+      26.173119814194173,
+      91.7392599162955
+    ],
+    "crs": "EPSG:4326",
+    "resolution_meters": 10.0,
+    "bounds": {
+      "south": 26.157968277444294,
+      "west": 91.72410837954561,
+      "north": 26.188271350944053,
+      "east": 91.75441145304538
+    },
+    "leaflet_bounds": [
+      [
+        26.157968277444294,
+        91.72410837954561
+      ],
+      [
+        26.188271350944053,
+        91.75441145304538
+      ]
+    ],
+    "width": 300,
+    "height": 300,
+    "reference_scene": {
+      "id": "wetland_ref",
+      "name": "Deepor Beel, Assam (2024-02-10)",
+      "date": "2024-02-10",
+      "file_path": "data/locations/wetland/reference/scene_20240210.tif",
+      "image_url": "/static/wetland_ref.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.188271350944053,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "target_scene": {
+      "id": "wetland_tgt",
+      "name": "Deepor Beel, Assam (2025-02-09)",
+      "date": "2025-02-09",
+      "file_path": "data/locations/wetland/target/scene_20250209.tif",
+      "mask_path": "data/locations/wetland/target/cloud_mask.tif",
+      "image_url": "/static/wetland_tgt.png",
+      "transform": [
+        0.00010101024499920008,
+        0.0,
+        91.72410837954561,
+        0.0,
+        -0.00010101024499920008,
+        26.188271350944053,
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    "provenance": {
+      "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+      "source": "Copernicus Open Access Hub / AWS Open Data",
+      "license": "CC-BY 4.0 Open Access",
+      "offline": true
+    }
+  }
+]

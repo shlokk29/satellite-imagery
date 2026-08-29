@@ -1,0 +1,74 @@
+{
+  "location_id": "wetland",
+  "name": "Deepor Beel, Assam",
+  "category": "WATER EXTENT CHANGE",
+  "badge_icon": "\ud83c\udf3f",
+  "description": "Deepor Beel Ramsar Wetland basin tracking open water surface area and aquatic macrophyte variations between multi-year dry seasons.",
+  "center": [
+    26.173119814194173,
+    91.7392599162955
+  ],
+  "crs": "EPSG:4326",
+  "resolution_meters": 10.0,
+  "bounds": {
+    "south": 26.157968277444294,
+    "west": 91.72410837954561,
+    "north": 26.188271350944053,
+    "east": 91.75441145304538
+  },
+  "leaflet_bounds": [
+    [
+      26.157968277444294,
+      91.72410837954561
+    ],
+    [
+      26.188271350944053,
+      91.75441145304538
+    ]
+  ],
+  "width": 300,
+  "height": 300,
+  "reference_scene": {
+    "id": "wetland_ref",
+    "name": "Deepor Beel, Assam (2024-02-10)",
+    "date": "2024-02-10",
+    "file_path": "data/locations/wetland/reference/scene_20240210.tif",
+    "image_url": "/static/wetland_ref.png",
+    "transform": [
+      0.00010101024499920008,
+      0.0,
+      91.72410837954561,
+      0.0,
+      -0.00010101024499920008,
+      26.188271350944053,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "target_scene": {
+    "id": "wetland_tgt",
+    "name": "Deepor Beel, Assam (2025-02-09)",
+    "date": "2025-02-09",
+    "file_path": "data/locations/wetland/target/scene_20250209.tif",
+    "mask_path": "data/locations/wetland/target/cloud_mask.tif",
+    "image_url": "/static/wetland_tgt.png",
+    "transform": [
+      0.00010101024499920008,
+      0.0,
+      91.72410837954561,
+      0.0,
+      -0.00010101024499920008,
+      26.188271350944053,
+      0.0,
+      0.0,
+      1.0
+    ]
+  },
+  "provenance": {
+    "sensor": "Sentinel-2 MSI Level-2A BOA Reflectance",
+    "source": "Copernicus Open Access Hub / AWS Open Data",
+    "license": "CC-BY 4.0 Open Access",
+    "offline": true
+  }
+}

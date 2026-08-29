@@ -167,6 +167,173 @@ header {
   color: #60a5fa;
 }
 
+.archive-summary-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(30, 58, 138, 0.25);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  padding: 6px 14px;
+  border-radius: 100px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #93c5fd;
+  letter-spacing: 0.04em;
+  box-shadow: 0 0 14px rgba(59, 130, 246, 0.15);
+}
+
+.location-select-container {
+  margin-bottom: 10px;
+}
+
+.location-search-container {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 7px;
+  padding: 7px 9px;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #60a5fa;
+}
+
+.location-search-container input {
+  min-width: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: var(--text-primary);
+  background: transparent;
+  font: inherit;
+  font-size: 0.74rem;
+}
+
+.location-search-container input::placeholder { color: #64748b; }
+.location-search-empty { padding-top: 5px; color: #fbbf24; font-size: 0.68rem; }
+
+.location-select {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #60a5fa;
+  background-color: rgba(30, 41, 59, 0.9);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  padding: 10px 12px;
+}
+
+.location-desc-box {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.location-cat-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #93c5fd;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.location-desc-text {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.demo-cards-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.demo-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 12px;
+}
+
+.demo-loc-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 7px 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.demo-loc-card:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.demo-loc-card.active {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: var(--accent-color);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
+}
+
+.demo-loc-card-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 2px;
+}
+
+.demo-loc-icon {
+  font-size: 0.85rem;
+}
+
+.demo-loc-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.demo-loc-timeline {
+  font-size: 0.64rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.zoom-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #93c5fd;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+}
+
+.zoom-btn:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: var(--accent-color);
+  color: #ffffff;
+}
+
 .section-title-row h3 {
   margin: 0;
   font-size: 0.88rem;
@@ -258,6 +425,7 @@ header {
 }
 
 .error-banner {
+
   color: #f87171;
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.25);
@@ -484,6 +652,14 @@ header {
 }
 
 /* Synchronized 3-Pane Maps */
+.map-workspace {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-primary);
+}
+
 .maps-grid {
   flex: 1;
   display: grid;
@@ -491,6 +667,19 @@ header {
   gap: 1px;
   background-color: var(--border-color);
   height: 100%;
+}
+
+.demo-scene-canvas {
+  flex: 1;
+  display: block;
+  width: 100%;
+  min-height: 0;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: #070a13;
+  image-rendering: auto;
+  object-fit: contain;
 }
 
 .map-pane {
@@ -620,6 +809,33 @@ header {
   margin-top: 16px;
   margin-bottom: 8px;
 }
+
+.change-intelligence-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  margin: -4px 0 12px;
+}
+
+.change-intelligence-facts > div {
+  padding: 7px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.change-intelligence-facts span {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--text-secondary);
+  font-size: 0.59rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.change-intelligence-facts strong { color: #e2e8f0; font-size: 0.69rem; }
+.change-intelligence-facts .change-intelligence-location { grid-column: 1 / -1; }
 
 .detail-thumb-container {
   display: grid;
@@ -855,4 +1071,137 @@ header {
   background: rgba(255, 255, 255, 0.2);
 }
 
+/* ========================================
+   Workflow Guide Banner
+   ======================================== */
+.workflow-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px 24px;
+  background: rgba(15, 23, 42, 0.75);
+  border-bottom: 1px solid var(--border-color);
+  backdrop-filter: blur(12px);
+  z-index: 50;
+  flex-shrink: 0;
+  animation: fadeInSlide 0.4s ease;
+}
 
+.workflow-banner.processing {
+  gap: 14px;
+  background: rgba(15, 30, 60, 0.8);
+  border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.workflow-banner-step {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: rgba(148, 163, 184, 0.5);
+  transition: all 0.3s ease;
+}
+
+.workflow-banner-step.active {
+  color: #93c5fd;
+}
+
+.wf-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.68rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.workflow-banner-step.active .wf-num {
+  background: rgba(59, 130, 246, 0.25);
+  border-color: rgba(59, 130, 246, 0.6);
+  color: #60a5fa;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
+
+.workflow-banner-arrow {
+  color: rgba(148, 163, 184, 0.3);
+  flex-shrink: 0;
+}
+
+/* Workflow Step Labels (in sidebar) */
+.workflow-step-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.67rem;
+  font-weight: 700;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+
+/* Demo Card Category Badge */
+.demo-loc-cat {
+  font-size: 0.60rem;
+  font-weight: 700;
+  color: #60a5fa;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.8;
+  margin-bottom: 1px;
+}
+
+/* Compact selected-AOI thumbnail: visual context only, loaded after the selected scene. */
+.aoi-preview-card {
+  margin: 10px 0 12px;
+  padding: 9px;
+  border: 1px solid rgba(96, 165, 250, 0.22);
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.62);
+}
+
+.aoi-preview-heading {
+  color: #93c5fd;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+}
+
+.aoi-preview-name {
+  margin: 3px 0 7px;
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.aoi-preview-image {
+  display: block;
+  width: 100%;
+  height: 104px;
+  object-fit: cover;
+  border-radius: 5px;
+  border: 1px solid rgba(255,255,255,0.10);
+}
+
+.aoi-preview-loading,
+.aoi-preview-meta {
+  color: var(--text-secondary);
+  font-size: 0.65rem;
+}
+
+.aoi-preview-loading { height: 50px; display: grid; place-items: center; }
+.aoi-preview-meta { margin-top: 6px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
