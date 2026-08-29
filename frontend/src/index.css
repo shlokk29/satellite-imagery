@@ -212,6 +212,121 @@ header {
 .location-search-container input::placeholder { color: #64748b; }
 .location-search-empty { padding-top: 5px; color: #fbbf24; font-size: 0.68rem; }
 
+.location-search-container.focused {
+  border-color: rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+.loc-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* Custom Location Dropdown */
+.location-select-container {
+  position: relative;
+}
+
+.location-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  background: rgba(10, 17, 32, 0.98);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 9px;
+  z-index: 9999;
+  overflow: hidden;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(59, 130, 246, 0.1);
+  animation: dropdownFadeIn 0.15s ease;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.location-dropdown-empty {
+  padding: 14px 14px;
+  font-size: 0.74rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.location-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  position: relative;
+}
+
+.location-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.location-dropdown-item:hover {
+  background: rgba(59, 130, 246, 0.12);
+}
+
+.location-dropdown-item.active {
+  background: rgba(59, 130, 246, 0.16);
+}
+
+.loc-drop-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
+.loc-drop-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.loc-drop-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.location-dropdown-item.active .loc-drop-name {
+  color: #93c5fd;
+}
+
+.loc-drop-cat {
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.location-dropdown-item.active .loc-drop-cat {
+  color: #3b82f6;
+}
+
+.loc-drop-active-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 6px rgba(59, 130, 246, 0.7);
+  flex-shrink: 0;
+}
+
 .location-select {
   font-size: 0.88rem;
   font-weight: 700;
