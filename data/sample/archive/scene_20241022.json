@@ -1,0 +1,30 @@
+{
+  "scene_id": "scene_20241022",
+  "name": "Guwahati Post-Monsoon (High River Extent)",
+  "acquisition_date": "2024-10-22",
+  "crs": "EPSG:4326",
+  "cloud_cover": 1.39,
+  "bounds": {
+    "south": 26.151706771808712,
+    "west": 91.72410837954561,
+    "north": 26.198372375443974,
+    "east": 91.7758256249852
+  },
+  "leaflet_bounds": [
+    [
+      26.151706771808712,
+      91.72410837954561
+    ],
+    [
+      26.198372375443974,
+      91.7758256249852
+    ]
+  ],
+  "width": 512,
+  "height": 512,
+  "bands": 4,
+  "resolution_meters": 10.0,
+  "source": "Copernicus Sentinel-2 MSI Level-2A BOA (2024-10-22)",
+  "image_url": "/static/scene_20241022.png",
+  "geotiff_path": "data/sample\\archive\\scene_20241022.tif"
+}

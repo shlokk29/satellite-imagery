@@ -1,0 +1,30 @@
+{
+  "scene_id": "scene_2024",
+  "name": "Guwahati Sentinel-2 Scene (T1 Reference)",
+  "acquisition_date": "2024-02-10",
+  "crs": "EPSG:4326",
+  "bounds": {
+    "south": 26.121519958547584,
+    "west": 91.71033014987671,
+    "north": 26.168189935132048,
+    "east": 91.76203871467841
+  },
+  "leaflet_bounds": [
+    [
+      26.121519958547584,
+      91.71033014987671
+    ],
+    [
+      26.168189935132048,
+      91.76203871467841
+    ]
+  ],
+  "width": 512,
+  "height": 512,
+  "bands": 4,
+  "resolution_meters": 10.0,
+  "source": "Sentinel-2 MSI Level-2A BOA Surface Reflectance (Copernicus)",
+  "processing_information": "Natural Color RGB Composite, Surface Reflectance Normalized, EPSG:4326 Co-Registered",
+  "preview_path": "data/sample/before/preview.png",
+  "geotiff_path": "data/sample/before/scene_2024.tif"
+}
