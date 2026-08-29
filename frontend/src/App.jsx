@@ -22,7 +22,8 @@ import {
   Mountain,
   Compass,
   ArrowRight,
-  ZoomIn
+  ZoomIn,
+  ChevronDown
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8000';
@@ -253,6 +254,8 @@ export default function App() {
   // VIT-AP remains an equal, selectable AOI rather than a featured landing page.
   const [selectedLocId, setSelectedLocId] = useState('mixed');
   const [locationQuery, setLocationQuery] = useState('');
+  const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  const locationDropdownRef = useRef(null);
   const [scenes, setScenes] = useState([]);
   const [beforeSceneId, setBeforeSceneId] = useState('');
   const [afterSceneId, setAfterSceneId] = useState('');
@@ -272,6 +275,17 @@ export default function App() {
   // Shared map view coordinates
   const [mapCenter, setMapCenter] = useState([26.1624, 91.7422]);
   const [mapZoom, setMapZoom] = useState(14);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (locationDropdownRef.current && !locationDropdownRef.current.contains(e.target)) {
+        setLocationDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   // Fetch locations and scenes on mount
   useEffect(() => {
@@ -595,31 +609,6 @@ export default function App() {
         </div>
       </header>
 
-      {/* Workflow Guide Banner */}
-      {!pipelineResult && !loading && (
-        <div className="workflow-banner">
-          <div className="workflow-banner-step active">
-            <span className="wf-num">1</span>
-            <span>Select AOI Location</span>
-          </div>
-          <div className="workflow-banner-arrow"><ArrowRight size={13} /></div>
-          <div className={`workflow-banner-step ${scenes.length > 0 ? 'active' : ''}`}>
-            <span className="wf-num">2</span>
-            <span>Choose Observation Dates</span>
-          </div>
-          <div className="workflow-banner-arrow"><ArrowRight size={13} /></div>
-          <div className="workflow-banner-step">
-            <span className="wf-num">3</span>
-            <span>Run Change Analytics</span>
-          </div>
-          <div className="workflow-banner-arrow"><ArrowRight size={13} /></div>
-          <div className="workflow-banner-step">
-            <span className="wf-num">4</span>
-            <span>Explore Detected Changes</span>
-          </div>
-        </div>
-      )}
-
       {loading && (
         <div className="workflow-banner processing">
           <span className="spinner" style={{ borderTopColor: '#60a5fa', borderColor: 'rgba(96,165,250,0.3)' }}></span>
@@ -637,17 +626,58 @@ export default function App() {
               <h3>STEP 1 — SELECT LOCATION (AOI)</h3>
             </div>
             
-            <div className="location-select-container">
-              <div className="location-search-container">
+            <div className="location-select-container" ref={locationDropdownRef}>
+              <div
+                className={`location-search-container${locationDropdownOpen ? ' focused' : ''}`}
+                onClick={() => setLocationDropdownOpen(true)}
+              >
                 <Search size={13} />
                 <input
                   value={locationQuery}
-                  onChange={(event) => handleLocationQueryChange(event.target.value)}
+                  onChange={(event) => {
+                    handleLocationQueryChange(event.target.value);
+                    setLocationDropdownOpen(true);
+                  }}
+                  onFocus={() => setLocationDropdownOpen(true)}
                   placeholder="Find a place (e.g. VIT-AP, Guwahati)"
                   aria-label="Find a demonstration location"
                 />
+                <ChevronDown
+                  size={13}
+                  className={`loc-chevron${locationDropdownOpen ? ' open' : ''}`}
+                  style={{ flexShrink: 0, color: '#64748b', transition: 'transform 0.2s ease' }}
+                />
               </div>
-              {locationQuery && locationMatches.length === 0 && <div className="location-search-empty">No matching staged AOI.</div>}
+
+              {locationDropdownOpen && (
+                <div className="location-dropdown">
+                  {locationMatches.length === 0 ? (
+                    <div className="location-dropdown-empty">No matching AOI found.</div>
+                  ) : (
+                    locationMatches.map(loc => (
+                      <div
+                        key={loc.location_id}
+                        className={`location-dropdown-item${selectedLocId === loc.location_id ? ' active' : ''}`}
+                        onClick={() => {
+                          handleLocationChange(loc.location_id);
+                          setLocationQuery('');
+                          setLocationDropdownOpen(false);
+                        }}
+                        title={loc.description}
+                      >
+                        <span className="loc-drop-icon">{loc.badge_icon || '📍'}</span>
+                        <div className="loc-drop-info">
+                          <span className="loc-drop-name">{loc.name}</span>
+                          <span className="loc-drop-cat">{loc.category}</span>
+                        </div>
+                        {selectedLocId === loc.location_id && (
+                          <span className="loc-drop-active-dot" />
+                        )}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
 
             {selectedLoc && (
@@ -680,30 +710,7 @@ export default function App() {
               </div>
             )}
 
-            {/* Quick-select AOI cards: the concept demo is intentionally one equal card. */}
             <>
-            <div className="demo-cards-label">Quick Select AOIs:</div>
-            <div className="demo-cards-grid">
-              {locationMatches.map(loc => (
-                <div 
-                  key={loc.location_id}
-                  className={`demo-loc-card ${selectedLocId === loc.location_id ? 'active' : ''}`}
-                  onClick={() => handleLocationChange(loc.location_id)}
-                  title={loc.description}
-                >
-                  <div className="demo-loc-card-header">
-                    <span className="demo-loc-icon">{loc.badge_icon || '📍'}</span>
-                    <span className="demo-loc-title">{loc.name.split('/')[0].trim()}</span>
-                  </div>
-                  <div className="demo-loc-cat">{loc.category}</div>
-                  <div className="demo-loc-timeline">
-                    {loc.location_id === CONCEPT_DEMO_ID
-                      ? 'BEFORE → AFTER'
-                      : `${loc.reference_scene?.date?.split('-')[0]} → ${loc.target_scene?.date?.split('-')[0]}`}
-                  </div>
-                </div>
-              ))}
-            </div>
 
             {/* Observation Dates Selection */}
             <div className="workflow-step-label" style={{ marginTop: 12 }}>
