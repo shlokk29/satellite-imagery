@@ -248,6 +248,118 @@ function ImageDebugBadge({ scene, title, bounds, metadata }) {
   );
 }
 
+function LiveCosmicBackground() {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    const numParticles = 160;
+    const particles = Array.from({ length: numParticles }, () => ({
+      x: (Math.random() - 0.5) * width * 2,
+      y: (Math.random() - 0.5) * height * 2,
+      z: Math.random() * 1000 + 1,
+      size: Math.random() * 1.6 + 0.5,
+      color: ['#38bdf8', '#818cf8', '#c084fc', '#60a5fa', '#e0e7ff'][Math.floor(Math.random() * 5)],
+      alpha: Math.random() * 0.75 + 0.25,
+      speed: Math.random() * 0.4 + 0.15
+    }));
+
+    let mouseX = 0, mouseY = 0, targetMouseX = 0, targetMouseY = 0;
+    const handleMouseMove = (e) => {
+      targetMouseX = (e.clientX - width / 2) * 0.04;
+      targetMouseY = (e.clientY - height / 2) * 0.04;
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+
+    const render = () => {
+      mouseX += (targetMouseX - mouseX) * 0.04;
+      mouseY += (targetMouseY - mouseY) * 0.04;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Ambient radial cosmic glows
+      const g1 = ctx.createRadialGradient(width * 0.15 + mouseX * 2, height * 0.2 + mouseY * 2, 30, width * 0.15, height * 0.2, width * 0.5);
+      g1.addColorStop(0, 'rgba(56, 189, 248, 0.07)');
+      g1.addColorStop(0.5, 'rgba(99, 102, 241, 0.025)');
+      g1.addColorStop(1, 'rgba(3, 7, 18, 0)');
+      ctx.fillStyle = g1;
+      ctx.fillRect(0, 0, width, height);
+
+      const g2 = ctx.createRadialGradient(width * 0.85 - mouseX * 2, height * 0.8 - mouseY * 2, 40, width * 0.85, height * 0.8, width * 0.5);
+      g2.addColorStop(0, 'rgba(192, 132, 252, 0.06)');
+      g2.addColorStop(0.5, 'rgba(14, 165, 233, 0.02)');
+      g2.addColorStop(1, 'rgba(3, 7, 18, 0)');
+      ctx.fillStyle = g2;
+      ctx.fillRect(0, 0, width, height);
+
+      const fov = 380;
+      const cx = width / 2 + mouseX;
+      const cy = height / 2 + mouseY;
+
+      particles.forEach((p) => {
+        p.z -= p.speed;
+        if (p.z <= 0) {
+          p.z = 1000;
+          p.x = (Math.random() - 0.5) * width * 2;
+          p.y = (Math.random() - 0.5) * height * 2;
+        }
+
+        const scale = fov / (fov + p.z);
+        const x2d = p.x * scale + cx;
+        const y2d = p.y * scale + cy;
+        const r2d = Math.max(0.4, p.size * scale * 1.4);
+
+        if (x2d >= 0 && x2d <= width && y2d >= 0 && y2d <= height) {
+          ctx.beginPath();
+          ctx.arc(x2d, y2d, r2d, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.min(1, scale * 1.7 * p.alpha);
+          ctx.fill();
+        }
+      });
+      ctx.globalAlpha = 1.0;
+
+      animationFrameId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="live-cosmic-canvas" />;
+}
+
+function OrbitalLogoIcon() {
+  return (
+    <div className="astrolab-logo-orbital">
+      <div className="orbital-ring ring-1"></div>
+      <div className="orbital-ring ring-2"></div>
+      <div className="orbital-core">
+        <Sparkles size={16} className="orbital-sparkle" />
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [locations, setLocations] = useState([]);
   // Keep the established Guwahati dashboard as the landing demonstration.
@@ -566,12 +678,11 @@ export default function App() {
   const changeMaskUrl = pipelineResult ? `${API_BASE}${pipelineResult.change_mask_url}` : null;
 
   return (
-    <>
-      <header>
+    <div className="astrolab-app-container">
+      <LiveCosmicBackground />
+      <header className="astrolab-header">
         <div className="logo-section">
-          <div className="logo-icon">
-            <Sparkles size={20} />
-          </div>
+          <OrbitalLogoIcon />
           <div>
             <div className="logo-text">DRISHTI</div>
             <div className="logo-subtext">Multi-Temporal Satellite Change Intelligence • Sentinel-2 MSI Level-2A</div>
@@ -1148,6 +1259,6 @@ export default function App() {
           </div>
         )}
       </div>
-    </>
+    </div>
   );
 }
