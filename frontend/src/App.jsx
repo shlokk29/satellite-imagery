@@ -573,16 +573,12 @@ export default function App() {
             <Sparkles size={20} />
           </div>
           <div>
-            <div className="logo-text">ANTIGRAVITY CHANGE INTELLIGENCE</div>
-            <div className="logo-subtext">Multi-Temporal &amp; Multi-Location Satellite Intelligence • Sentinel-2 MSI Level-2A</div>
+            <div className="logo-text">DRISHTI</div>
+            <div className="logo-subtext">Multi-Temporal Satellite Change Intelligence • Sentinel-2 MSI Level-2A</div>
           </div>
         </div>
 
-        {/* Archive Summary Badge */}
-        <div className="archive-summary-badge">
-          <Globe2 size={13} style={{ color: '#60a5fa' }} />
-          <span>MULTI-LOCATION ARCHIVE • 6 AOIs • REAL SENTINEL-2 • 100% OFFLINE</span>
-        </div>
+
 
         <div className="header-actions">
           {(pipelineResult || changes.length > 0) && (
@@ -602,10 +598,7 @@ export default function App() {
             </div>
           )}
           
-          <div className="health-badge">
-            <ShieldCheck size={14} />
-            <span>100% Offline AI</span>
-          </div>
+
         </div>
       </header>
 
@@ -621,10 +614,6 @@ export default function App() {
         <div className="sidebar">
           {/* AOI Location Selection */}
           <div className="panel-section">
-            <div className="section-title-row">
-              <Compass size={15} />
-              <h3>STEP 1 — SELECT LOCATION (AOI)</h3>
-            </div>
             
             <div className="location-select-container" ref={locationDropdownRef}>
               <div
@@ -713,10 +702,6 @@ export default function App() {
             <>
 
             {/* Observation Dates Selection */}
-            <div className="workflow-step-label" style={{ marginTop: 12 }}>
-              <ArrowRight size={11} />
-              <span>STEP 2 — Observation Dates</span>
-            </div>
             <div className="scene-select-row">
               <div style={{ flex: 1 }}>
                 <label className="field-label">{isConceptDemo ? 'Reference (Demo Before)' : 'Reference (T₁ — Before)'}</label>
@@ -742,10 +727,7 @@ export default function App() {
               </div>
             </div>
             
-            <div className="workflow-step-label">
-              <ArrowRight size={11} />
-              <span>STEP 3 — Run Change Analysis</span>
-            </div>
+
             <button 
               className="run-btn" 
               onClick={handleRunPipeline}
