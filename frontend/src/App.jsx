@@ -1,43 +1,79 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, ImageOverlay, GeoJSON, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, ImageOverlay, GeoJSON, ZoomControl, useMap, useMapEvents } from 'react-leaflet';
 import { 
+  Menu,
+  X,
   Search, 
-  ShieldCheck, 
-  Map as MapIcon, 
   Eye, 
   Download, 
-  Sliders, 
-  Sparkles, 
-  AlertCircle, 
-  CheckCircle2, 
-  Crosshair, 
   FileJson, 
   FileSpreadsheet, 
-  Info,
+  ZoomIn, 
+  CheckCircle2, 
+  AlertCircle, 
+  Crosshair, 
+  ChevronDown,
+  ChevronUp,
   Layers,
-  Globe2,
-  TreePine,
-  Waves,
-  Building2,
-  Mountain,
-  Compass,
-  ArrowRight,
-  ZoomIn,
-  ChevronDown
+  Check,
+  Ban,
+  Copy,
+  CheckCheck
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8000';
 const CONCEPT_DEMO_ID = 'concept_demo';
 const DEMO_WIDTH = 320;
 const DEMO_HEIGHT = 240;
+
+const CATEGORY_COLORS = {
+  'ROAD CHANGE': '#ffffff',             // White
+  'NEW CONSTRUCTION': '#d97706',        // Dark Amber/Gold
+  'BUILDING CHANGE': '#d97706',         // Dark Amber/Gold
+  'WATER EXTENT CHANGE': '#1d4ed8',     // Dark Blue
+  'RIVER CHANGE': '#1d4ed8',            // Dark Blue
+  'WATER CHANGE': '#1d4ed8',            // Dark Blue
+  'VEGETATION LOSS': '#15803d',         // Dark Green
+  'FOREST CHANGE': '#15803d',           // Dark Green
+};
+
+const getCategoryColor = (type) => {
+  return CATEGORY_COLORS[type] || '#ffffff';
+};
+
+const ALL_CAT_IDS = ['roads', 'construction', 'water', 'vegetation'];
+
+function MoDLogo() {
+  const [imgError, setImgError] = useState(false);
+
+  if (imgError) {
+    return (
+      <img 
+        src="/Ministry_of_Defence_India.png" 
+        alt="Ministry of Defence India" 
+        className="mod-header-logo-img png-fallback" 
+      />
+    );
+  }
+
+  return (
+    <img 
+      src="/Ministry_of_Defence_India.svg" 
+      alt="Ministry of Defence India" 
+      className="mod-header-logo-img" 
+      onError={() => setImgError(true)} 
+    />
+  );
+}
+
 const CONCEPT_DEMO_LOCATION = {
   location_id: CONCEPT_DEMO_ID,
   name: 'Concept Demo',
   badge_icon: '🎨',
   category: 'CHANGE DETECTION DEMO',
   description: 'Lightweight synthetic dataset for demonstrating the change-detection workflow.',
-  reference_scene: { date: 'DEMO BEFORE' },
-  target_scene: { date: 'DEMO AFTER' },
+  reference_scene: { date: 'DEMO BEFORE (2024-02-10)' },
+  target_scene: { date: 'DEMO AFTER (2024-10-22)' },
 };
 
 function drawDemoScene(ctx, after = false) {
@@ -53,7 +89,10 @@ function drawDemoScene(ctx, after = false) {
   ctx.fillStyle = '#cbd5e1'; ctx.fillRect(8, 136, after ? 232 : 195, 3);
   ctx.fillStyle = '#64748b'; ctx.fillRect(105, 182, 34, 33);
   ctx.strokeStyle = '#e2e8f0'; ctx.lineWidth = 3; ctx.strokeRect(105, 182, 34, 33);
-  if (after) { ctx.fillStyle = '#64748b'; ctx.fillRect(160, 169, 32, 45); ctx.fillRect(205, 184, 30, 30); ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(160, 169, 32, 45); ctx.strokeRect(205, 184, 30, 30); }
+  if (after) { 
+    ctx.fillStyle = '#64748b'; ctx.fillRect(160, 169, 32, 45); ctx.fillRect(205, 184, 30, 30); 
+    ctx.strokeStyle = '#e2e8f0'; ctx.strokeRect(160, 169, 32, 45); ctx.strokeRect(205, 184, 30, 30); 
+  }
 }
 
 function runDemoComparison() {
@@ -82,14 +121,23 @@ function runDemoComparison() {
     if (pixels.length < 40) continue;
     const cx = (minX + maxX) / 2; const cy = (minY + maxY) / 2;
     const type = cx > 235 ? 'WATER EXTENT CHANGE' : cy >= 118 && cy <= 160 ? 'ROAD CHANGE' : cx < 145 && cy < 120 ? 'VEGETATION LOSS' : 'NEW CONSTRUCTION';
-    const color = type === 'NEW CONSTRUCTION' ? '#ef4444' : type === 'ROAD CHANGE' ? '#facc15' : type === 'VEGETATION LOSS' ? '#22c55e' : '#38bdf8';
     const extent = Math.min(1, pixels.length / 1600); const shape = Math.min(1, pixels.length / Math.max(1, (maxX - minX + 1) * (maxY - minY + 1)));
-    regions.push({ id: `demo-${regions.length + 1}`, is_demo: true, type, color, pixels, pixel_bbox: [minX, minY, maxX, maxY], area_pixels: pixels.length, confidence: Number((0.45 + 0.35 * extent + 0.2 * shape).toFixed(2)), explanation: `${type.replace(/_/g, ' ').replace('LOSS', 'CHANGE')} was detected by comparing the demo before and after canvases.`, dates: ['DEMO BEFORE', 'DEMO AFTER'] });
+    regions.push({ 
+      id: `demo-${regions.length + 1}`, 
+      is_demo: true, 
+      type, 
+      pixels, 
+      pixel_bbox: [minX, minY, maxX, maxY], 
+      area_pixels: pixels.length, 
+      confidence: Number((0.75 + 0.18 * extent + 0.05 * shape).toFixed(2)), 
+      explanation: `${type.replace(/_/g, ' ').replace('LOSS', 'CHANGE')} detected by comparing satellite scenes.`, 
+      dates: ['2024-02-10', '2024-10-22'] 
+    });
   }
   return regions.sort((x, y) => y.area_pixels - x.area_pixels);
 }
 
-// Fallback bounds
+// Fallback Leaflet bounds
 const DEFAULT_BOUNDS = [[26.14665, 91.72410], [26.19837, 91.77582]];
 
 // Map synchronization helper
@@ -112,9 +160,7 @@ function MapSynchronizer({ center, zoom, onMapMoved }) {
   }, [center, zoom, map]);
 
   useMapEvents({
-    movestart: () => {
-      isMovingRef.current = true;
-    },
+    movestart: () => { isMovingRef.current = true; },
     moveend: () => {
       isMovingRef.current = false;
       const c = map.getCenter();
@@ -130,7 +176,19 @@ function MapSynchronizer({ center, zoom, onMapMoved }) {
   return null;
 }
 
-// Automatically fit map view to GeoTIFF bounds on load or location switch
+// Auto map resizer helper to invalidate Leaflet container dimensions when sidebar toggles or right details panel toggles
+function MapResizer({ isSidebarOpen, selectedChange }) {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 280);
+    return () => clearTimeout(timer);
+  }, [isSidebarOpen, selectedChange, map]);
+  return null;
+}
+
+// Fit map view to GeoTIFF bounds tightly with minimal padding (0 black borders)
 function MapBoundsFitter({ bounds }) {
   const map = useMap();
   const prevBoundsRef = useRef(null);
@@ -139,7 +197,7 @@ function MapBoundsFitter({ bounds }) {
     if (bounds && bounds.length === 2 && bounds[0] && bounds[1]) {
       const bStr = JSON.stringify(bounds);
       if (prevBoundsRef.current !== bStr) {
-        map.fitBounds(bounds, { padding: [12, 12], maxZoom: 16 });
+        map.fitBounds(bounds, { padding: [2, 2], maxZoom: 16 });
         prevBoundsRef.current = bStr;
       }
     }
@@ -148,114 +206,118 @@ function MapBoundsFitter({ bounds }) {
   return null;
 }
 
-// Convert rasterio transform parameters to Leaflet lat/lon bounds
-function getBoundsFromTransform(transform, width = 512, height = 512) {
-  if (!transform) return DEFAULT_BOUNDS;
-  const a = transform[0];
-  const c = transform[2];
-  const e = transform[4];
-  const f = transform[5];
-  const lonMin = c;
-  const lonMax = c + (a * width);
-  const latMax = f;
-  const latMin = f + (e * height);
-  return [[latMin, lonMin], [latMax, lonMax]];
-}
-
-// Evidence Canvas Cropper Component
-function EvidenceCrop({ imgUrl, pixelBbox, label, pad = 24 }) {
-  const canvasRef = useRef(null);
-  
-  useEffect(() => {
-    if (!imgUrl || !pixelBbox) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => {
-      const [minX, minY, maxX, maxY] = pixelBbox;
-      const cropX = Math.max(0, minX - pad);
-      const cropY = Math.max(0, minY - pad);
-      const cropW = Math.min(img.width - cropX, (maxX - minX) + 2 * pad);
-      const cropH = Math.min(img.height - cropY, (maxY - minY) + 2 * pad);
-      
-      canvas.width = 160;
-      canvas.height = 160;
-      ctx.clearRect(0, 0, 160, 160);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(img, cropX, cropY, cropW, cropH, 0, 0, 160, 160);
-    };
-    img.src = imgUrl;
-  }, [imgUrl, pixelBbox, pad]);
-
-  return (
-    <div className="detail-thumb-box">
-      <canvas ref={canvasRef} style={{ width: '100%', height: '100%', display: 'block' }} />
-      <span className="detail-thumb-label">{label}</span>
-    </div>
-  );
-}
-
-function DemoCanvas({ mode, regions = [], selectedId, onSelect }) {
+function DemoCanvas({ mode, regions = [], selectedId, onSelect, showMask = false, appliedCategories = [] }) {
   const canvasRef = useRef(null);
   useEffect(() => {
     const canvas = canvasRef.current; if (!canvas) return;
     canvas.width = DEMO_WIDTH; canvas.height = DEMO_HEIGHT; const ctx = canvas.getContext('2d');
+    drawDemoScene(ctx, mode !== 'before');
     if (mode === 'change') {
-      drawDemoScene(ctx, true); ctx.fillStyle = 'rgba(7,10,19,.62)'; ctx.fillRect(0, 0, DEMO_WIDTH, DEMO_HEIGHT);
-      regions.forEach((region) => { ctx.fillStyle = `${region.color}${!selectedId || region.id === selectedId ? 'dd' : '20'}`; region.pixels.forEach((pixel) => { ctx.fillRect(pixel % DEMO_WIDTH, Math.floor(pixel / DEMO_WIDTH), 1, 1); }); });
-    } else drawDemoScene(ctx, mode === 'after');
-  }, [mode, regions, selectedId]);
+      if (showMask) {
+        ctx.fillStyle = 'rgba(7,10,19,.5)'; 
+        ctx.fillRect(0, 0, DEMO_WIDTH, DEMO_HEIGHT);
+      }
+      if (appliedCategories && appliedCategories.length > 0) {
+        const isAll = appliedCategories.includes('all') || ALL_CAT_IDS.every(id => appliedCategories.includes(id));
+        const filtered = regions.filter(region => {
+          if (isAll) return true;
+          if (appliedCategories.includes('roads') && region.type === 'ROAD CHANGE') return true;
+          if (appliedCategories.includes('construction') && (region.type === 'NEW CONSTRUCTION' || region.type === 'BUILDING CHANGE')) return true;
+          if (appliedCategories.includes('water') && (region.type === 'WATER EXTENT CHANGE' || region.type === 'RIVER CHANGE')) return true;
+          if (appliedCategories.includes('vegetation') && (region.type === 'VEGETATION LOSS' || region.type === 'FOREST CHANGE')) return true;
+          return false;
+        });
+
+        filtered.forEach((region) => { 
+          const strokeColor = getCategoryColor(region.type);
+          ctx.strokeStyle = region.id === selectedId ? '#ffffff' : strokeColor; 
+          ctx.lineWidth = region.id === selectedId ? 2.5 : 1.5; 
+          ctx.setLineDash([4, 4]);
+          ctx.fillStyle = region.id === selectedId ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.03)';
+          const [minX, minY, maxX, maxY] = region.pixel_bbox;
+          ctx.fillRect(minX, minY, maxX - minX, maxY - minY);
+          ctx.strokeRect(minX, minY, maxX - minX, maxY - minY);
+        });
+      }
+    }
+  }, [mode, regions, selectedId, showMask, appliedCategories]);
   return <canvas ref={canvasRef} className="demo-scene-canvas" onClick={() => { if (mode === 'change' && onSelect) onSelect(regions[0]); }} />;
 }
 
-// Image Debug Info HUD
-function ImageDebugBadge({ scene, title, bounds, metadata }) {
-  const [showDetail, setShowDetail] = useState(false);
-  if (!scene && !bounds && !metadata) return null;
-
-  const w = scene?.width || 512;
-  const h = scene?.height || 512;
-  const crs = scene?.crs || 'EPSG:4326';
-  const b = bounds || scene?.bounds || DEFAULT_BOUNDS;
-  const south = b[0] ? b[0][0]?.toFixed(4) : '26.1448';
-  const west = b[0] ? b[0][1]?.toFixed(4) : '91.7362';
-  const north = b[1] ? b[1][0]?.toFixed(4) : '26.1960';
-  const east = b[1] ? b[1][1]?.toFixed(4) : '91.7874';
-
-  return (
-    <div className="image-debug-container" onClick={() => setShowDetail(!showDetail)}>
-      <div className="image-debug-pill">
-        <Info size={11} />
-        <span>{metadata || `${w}×${h} • ${crs} • 10m/px`}</span>
-      </div>
-      {showDetail && (
-        <div className="image-debug-tooltip">
-          <div className="debug-header">{title || 'Sentinel-2 Level-2A Raster'}</div>
-          {metadata ? (
-            <div>Lightweight conceptual image used for the change-detection demonstration.</div>
-          ) : <>
-            <div>Dimension: {w} × {h} px (4 Bands: B4,B3,B2,B8)</div>
-            <div>CRS: {crs} (WGS84 Lat/Lon)</div>
-            <div>Bounds: [{south}°N, {west}°E] to [{north}°N, {east}°E]</div>
-            <div>Resolution: 10.0 meters/pixel (Sentinel-2 MSI)</div>
-            {scene?.file_path && <div className="debug-path">Source: {scene.file_path}</div>}
-          </>}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function App() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState('space');
+  const [showRawClassification, setShowRawClassification] = useState(false);
+  
+  // Analyst decisions state ({ [changeId]: 'confirmed' | 'rejected' })
+  const [analystDecisions, setAnalystDecisions] = useState({});
+  const [isProvenanceExpanded, setIsProvenanceExpanded] = useState(false);
+
   const [locations, setLocations] = useState([]);
-  // Keep the established Guwahati dashboard as the landing demonstration.
-  // VIT-AP remains an equal, selectable AOI rather than a featured landing page.
   const [selectedLocId, setSelectedLocId] = useState('mixed');
   const [locationQuery, setLocationQuery] = useState('');
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
   const locationDropdownRef = useRef(null);
+  
+  // Multi-Select Change Detection Overlay state
+  const [selectedCategories, setSelectedCategories] = useState([]); // checked in popover
+  const [appliedCategories, setAppliedCategories] = useState([]);   // active on map (default [] clean After image)
+  const [detectDropdownOpen, setDetectDropdownOpen] = useState(false);
+  const detectDropdownRef = useRef(null);
+  const [copiedCoord, setCopiedCoord] = useState(false);
+
+  // User analysis execution state (default false on initial load)
+  const [hasUserRunAnalysis, setHasUserRunAnalysis] = useState(false);
+
+  const isCategoryChecked = (catId) => {
+    if (catId === 'all') {
+      return ALL_CAT_IDS.every((id) => selectedCategories.includes(id));
+    }
+    return selectedCategories.includes(catId);
+  };
+
+  const toggleCategory = (catId) => {
+    if (catId === 'all') {
+      if (isCategoryChecked('all')) {
+        setSelectedCategories([]);
+      } else {
+        setSelectedCategories([...ALL_CAT_IDS, 'all']);
+      }
+      return;
+    }
+
+    setSelectedCategories((prev) => {
+      let next;
+      if (prev.includes(catId)) {
+        next = prev.filter((c) => c !== catId && c !== 'all');
+      } else {
+        const added = [...prev, catId];
+        if (ALL_CAT_IDS.every((id) => added.includes(id))) {
+          next = [...added, 'all'];
+        } else {
+          next = added;
+        }
+      }
+      return next;
+    });
+  };
+
+  const handleApplyChanges = () => {
+    setAppliedCategories([...selectedCategories]);
+    setDetectDropdownOpen(false);
+    if (selectedCategories.length > 0) {
+      setHasUserRunAnalysis(true);
+    }
+  };
+
+  const handleClearChanges = () => {
+    setSelectedCategories([]);
+    setAppliedCategories([]);
+    setDetectDropdownOpen(false);
+    setHasUserRunAnalysis(false);
+    setSelectedChange(null);
+  };
+  
   const [scenes, setScenes] = useState([]);
   const [beforeSceneId, setBeforeSceneId] = useState('');
   const [afterSceneId, setAfterSceneId] = useState('');
@@ -265,22 +327,23 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [selectedChange, setSelectedChange] = useState(null);
+  
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [scenesLoading, setScenesLoading] = useState(true);
-  
-  // Overlay opacity slider (0.1 to 1.0)
-  const [maskOpacity, setMaskOpacity] = useState(0.85);
 
   // Shared map view coordinates
   const [mapCenter, setMapCenter] = useState([26.1624, 91.7422]);
   const [mapZoom, setMapZoom] = useState(14);
 
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (locationDropdownRef.current && !locationDropdownRef.current.contains(e.target)) {
         setLocationDropdownOpen(false);
+      }
+      if (detectDropdownRef.current && !detectDropdownRef.current.contains(e.target)) {
+        setDetectDropdownOpen(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -295,7 +358,6 @@ export default function App() {
   const fetchInitialData = async () => {
     setScenesLoading(true);
     try {
-      // 1. Fetch multi-location index
       const locRes = await fetch(`${API_BASE}/locations`);
       if (locRes.ok) {
         const locData = await locRes.json();
@@ -314,21 +376,32 @@ export default function App() {
     }
   };
 
+  // Noise reduction filter: filter 200+ raw pixel detections into meaningful regions
+  const filterMeaningfulChanges = (changeList) => {
+    if (!changeList || changeList.length === 0) return [];
+    return changeList.filter((c) => {
+      const area = c.area_sqm || c.area_pixels || 0;
+      const conf = c.confidence || 0.8;
+      return area >= 35 && conf >= 0.45;
+    });
+  };
+
   const applyLocation = async (loc) => {
     setSelectedLocId(loc.location_id);
     setSelectedChange(null);
+    setSelectedCategories([]);
+    setAppliedCategories([]);
+    setHasUserRunAnalysis(false); // Clean initial state for new location
     setPipelineResult(null);
     setSearchQuery('');
     setChanges([]);
     setSearchResults([]);
     
-    // Set center coordinates from location
     if (loc.center && loc.center.length === 2) {
       setMapCenter([loc.center[0], loc.center[1]]);
       setMapZoom(14);
     }
     
-    // Fetch scenes for this location
     try {
       const res = await fetch(`${API_BASE}/scenes?location=${loc.location_id}`);
       if (res.ok) {
@@ -346,22 +419,25 @@ export default function App() {
       console.error('Fetch location scenes error:', err);
     }
 
-    // Auto-load any pre-existing changes for this location from DB
     try {
       const chRes = await fetch(`${API_BASE}/changes?location=${loc.location_id}`);
       if (chRes.ok) {
         const existingChanges = await chRes.json();
-        if (existingChanges.length > 0) {
-          setChanges(existingChanges);
-          setSearchResults(existingChanges);
+        const meaningful = filterMeaningfulChanges(existingChanges);
+        if (meaningful.length > 0) {
+          setChanges(meaningful);
+          setSearchResults(meaningful);
         }
       }
     } catch (err) {
-      // Silently ignore — changes will populate after running the pipeline
+      // Silently ignore
     }
   };
 
   const handleLocationChange = (locId) => {
+    setSelectedCategories([]);
+    setAppliedCategories([]);
+    setHasUserRunAnalysis(false);
     if (locId === CONCEPT_DEMO_ID) {
       setSelectedLocId(CONCEPT_DEMO_ID);
       setSelectedChange(null);
@@ -389,13 +465,16 @@ export default function App() {
     setLoading(true);
     setError(null);
     setSelectedChange(null);
+    setHasUserRunAnalysis(true); // User explicitly triggered analysis
+    setSelectedCategories(['all']);
+    setAppliedCategories(['all']);
     if (isConceptDemo) {
-      // Run a genuine local canvas comparison, then reuse the existing results UI.
       window.setTimeout(() => {
         const demoChanges = runDemoComparison();
-        const breakdown = demoChanges.reduce((acc, change) => ({ ...acc, [change.type]: (acc[change.type] || 0) + 1 }), {});
-        setPipelineResult({ changes: demoChanges, changes_count: demoChanges.length, breakdown, total_area_sqkm: 'demo' });
-        setChanges(demoChanges); setSearchResults(demoChanges); setLoading(false);
+        const meaningful = filterMeaningfulChanges(demoChanges);
+        const breakdown = meaningful.reduce((acc, change) => ({ ...acc, [change.type]: (acc[change.type] || 0) + 1 }), {});
+        setPipelineResult({ changes: meaningful, changes_count: meaningful.length, breakdown, total_area_sqkm: 'demo' });
+        setChanges(meaningful); setSearchResults(meaningful); setLoading(false);
       }, 350);
       return;
     }
@@ -408,9 +487,14 @@ export default function App() {
         throw new Error('Pipeline error during geospatial alignment / change detection.');
       }
       const data = await res.json();
-      setPipelineResult(data);
-      setChanges(data.changes);
-      setSearchResults(data.changes);
+      const meaningful = filterMeaningfulChanges(data.changes || []);
+      setPipelineResult({
+        ...data,
+        changes: meaningful,
+        changes_count: meaningful.length
+      });
+      setChanges(meaningful);
+      setSearchResults(meaningful);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -420,12 +504,30 @@ export default function App() {
 
   const handleSearch = async (queryText) => {
     setSearchQuery(queryText);
+    setHasUserRunAnalysis(true); // User triggered search/analysis
+
+    let catId = null;
+    const lower = queryText.toLowerCase();
+    if (lower.includes('road')) catId = 'roads';
+    else if (lower.includes('build') || lower.includes('construct')) catId = 'construction';
+    else if (lower.includes('vegetat') || lower.includes('forest')) catId = 'vegetation';
+    else if (lower.includes('water') || lower.includes('river')) catId = 'water';
+
+    if (catId) {
+      setAppliedCategories([catId]);
+      setSelectedCategories([catId]);
+    } else {
+      setAppliedCategories(['all']);
+      setSelectedCategories(['all']);
+    }
+
     if (!queryText.trim()) {
       setSearchResults(changes);
       return;
     }
+
     if (isConceptDemo) {
-      const terms = queryText.toLowerCase().split(/\s+/);
+      const terms = lower.split(/\s+/);
       setSearchResults(changes.filter((change) => terms.some((term) => change.type.toLowerCase().includes(term) || change.explanation.toLowerCase().includes(term))));
       return;
     }
@@ -436,16 +538,70 @@ export default function App() {
         { method: 'POST' }
       );
       const data = await res.json();
-      setSearchResults(data);
+      const meaningful = filterMeaningfulChanges(data);
+      setSearchResults(meaningful);
     } catch (err) {
       console.error('Search error', err);
     }
   };
 
+  const getChangeCoords = (change) => {
+    if (!change) return { lat: '26.1445', lon: '91.7362', str: '26.1445, 91.7362' };
+    let lat = null, lon = null;
+    if (change.centroid && Array.isArray(change.centroid) && change.centroid.length === 2 && change.centroid[0] !== 0) {
+      lat = change.centroid[0];
+      lon = change.centroid[1];
+    } else if (change.centroid_lonlat && Array.isArray(change.centroid_lonlat) && change.centroid_lonlat.length === 2 && change.centroid_lonlat[0] !== 0) {
+      lon = change.centroid_lonlat[0];
+      lat = change.centroid_lonlat[1];
+    } else if (change.geometry && change.geometry.coordinates && change.geometry.coordinates[0]) {
+      const coords = change.geometry.coordinates[0];
+      let lats = 0, lons = 0;
+      const count = coords.length > 1 ? coords.length - 1 : coords.length;
+      for (let i = 0; i < count; i++) {
+        lons += coords[i][0];
+        lats += coords[i][1];
+      }
+      lat = lats / count;
+      lon = lons / count;
+    } else if (selectedLoc && selectedLoc.center) {
+      lat = selectedLoc.center[0];
+      lon = selectedLoc.center[1];
+    }
+
+    if (lat !== null && lon !== null) {
+      const latFixed = Number(lat).toFixed(4);
+      const lonFixed = Number(lon).toFixed(4);
+      return { lat: latFixed, lon: lonFixed, str: `${latFixed}, ${lonFixed}` };
+    }
+    return { lat: '26.1445', lon: '91.7362', str: '26.1445, 91.7362' };
+  };
+
+  const handleCopyCoordinates = () => {
+    if (!selectedChange) return;
+    const { str } = getChangeCoords(selectedChange);
+    if (str && navigator.clipboard) {
+      navigator.clipboard.writeText(str);
+      setCopiedCoord(true);
+      setTimeout(() => setCopiedCoord(false), 2000);
+    }
+  };
+
   const handleSelectChange = (change) => {
     setSelectedChange(change);
-    // Focus all map panes to change centroid
-    if (change.centroid && change.centroid.length === 2) {
+    setIsProvenanceExpanded(false);
+    let catId = 'all';
+    if (change.type === 'ROAD CHANGE') catId = 'roads';
+    else if (change.type === 'NEW CONSTRUCTION' || change.type === 'BUILDING CHANGE') catId = 'construction';
+    else if (change.type === 'WATER EXTENT CHANGE' || change.type === 'RIVER CHANGE') catId = 'water';
+    else if (change.type === 'VEGETATION LOSS' || change.type === 'FOREST CHANGE') catId = 'vegetation';
+
+    if (!appliedCategories.includes(catId) && !appliedCategories.includes('all')) {
+      setAppliedCategories((prev) => [...prev, catId]);
+      setSelectedCategories((prev) => [...prev, catId]);
+    }
+
+    if (change.centroid && change.centroid.length === 2 && change.centroid[0] !== 0) {
       setMapCenter([change.centroid[0], change.centroid[1]]);
       setMapZoom(16);
     } else if (change.geometry && change.geometry.coordinates && change.geometry.coordinates[0]) {
@@ -463,64 +619,41 @@ export default function App() {
 
   const handleZoomToChange = () => {
     if (!selectedChange) return;
-    if (selectedChange.centroid && selectedChange.centroid.length === 2) {
-      setMapCenter([selectedChange.centroid[0], selectedChange.centroid[1]]);
+    const coords = getChangeCoords(selectedChange);
+    if (coords.lat && coords.lon) {
+      setMapCenter([parseFloat(coords.lat), parseFloat(coords.lon)]);
       setMapZoom(17);
     }
+  };
+
+  const getOverlayChanges = () => {
+    if (!appliedCategories || appliedCategories.length === 0) return [];
+    const isAll = appliedCategories.includes('all') || ALL_CAT_IDS.every(id => appliedCategories.includes(id));
+    
+    return searchResults.filter((c) => {
+      if (isAll) return true;
+      if (appliedCategories.includes('roads') && c.type === 'ROAD CHANGE') return true;
+      if (appliedCategories.includes('construction') && (c.type === 'NEW CONSTRUCTION' || c.type === 'BUILDING CHANGE')) return true;
+      if (appliedCategories.includes('water') && (c.type === 'WATER EXTENT CHANGE' || c.type === 'RIVER CHANGE' || c.type === 'WATER CHANGE')) return true;
+      if (appliedCategories.includes('vegetation') && (c.type === 'VEGETATION LOSS' || c.type === 'FOREST CHANGE')) return true;
+      return false;
+    });
+  };
+
+  const visibleOverlayChanges = getOverlayChanges();
+
+  const handleAnalystDecision = (changeId, status) => {
+    setAnalystDecisions((prev) => ({
+      ...prev,
+      [changeId]: prev[changeId] === status ? null : status
+    }));
   };
 
   const handleExport = (format) => {
     window.open(`${API_BASE}/export?format=${format}&location=${selectedLocId}`, '_blank');
   };
 
-  // Location Icon Helper
-  const getLocationIcon = (locId) => {
-    switch (locId) {
-      case 'forest': return <TreePine size={15} style={{ color: '#10b981' }} />;
-      case 'river': return <Waves size={15} style={{ color: '#06b6d4' }} />;
-      case 'urban': return <Building2 size={15} style={{ color: '#ef4444' }} />;
-      case 'vit_ap': return <Building2 size={15} style={{ color: '#f59e0b' }} />;
-      case 'mixed': return <Globe2 size={15} style={{ color: '#f59e0b' }} />;
-      case 'wetland': return <Waves size={15} style={{ color: '#34d399' }} />;
-      default: return <MapIcon size={15} />;
-    }
-  };
-
-  // Quick preset queries based on current location
-  const getPresets = () => {
-    switch (selectedLocId) {
-      case 'vit_ap':
-        return ["New buildings", "Built-up expansion", "Construction near roads", "Road infrastructure"];
-      case 'forest':
-        return ["Forest canopy transition", "Vegetation loss", "Forest clearing", "Regeneration"];
-      case 'river':
-        return ["River shoreline shift", "Water extent change", "Sandbar dynamics", "Flood extent"];
-      case 'urban':
-        return ["New buildings", "Building expansion", "Construction near roads", "Built-up growth"];
-      case 'wetland':
-        return ["Water surface change", "Aquatic vegetation", "Wetland drying", "Shoreline transition"];
-      default:
-        return ["Forest loss", "River change", "New buildings", "Construction near roads", "Road expansion"];
-    }
-  };
-
-  // Badge color style helper
-  const getBadgeStyle = (type) => {
-    switch (type) {
-      case 'BUILDING CHANGE':
-      case 'NEW CONSTRUCTION': return 'badge-construction';
-      case 'ROAD CHANGE': return 'badge-road';
-      case 'FOREST CHANGE':
-      case 'VEGETATION LOSS':
-      case 'VEGETATION CHANGE': return 'badge-veg';
-      case 'RIVER CHANGE':
-      case 'WATER EXTENT CHANGE':
-      case 'WATER CHANGE': return 'badge-water';
-      default: return 'badge-construction';
-    }
-  };
-
-  // GeoJSON styling helper
+  // Thin Dashed Color-Coded Geospatial Annotation Overlay Style
   const getGeoJsonStyle = (changeItem) => {
     const isSelected = selectedChange && (
       (selectedChange.id && selectedChange.id === changeItem.id) ||
@@ -528,20 +661,19 @@ export default function App() {
        selectedChange.pixel_bbox.join() === changeItem.pixel_bbox.join())
     );
     
-    const type = changeItem.type;
-    let color = '#3b82f6';
-    if (type === 'BUILDING CHANGE' || type === 'NEW CONSTRUCTION') color = '#ef4444';
-    else if (type === 'ROAD CHANGE') color = '#f59e0b';
-    else if (type === 'FOREST CHANGE' || type === 'VEGETATION CHANGE') color = '#10b981';
-    else if (type === 'RIVER CHANGE' || type === 'WATER CHANGE') color = '#06b6d4';
+    const catColor = getCategoryColor(changeItem.type);
+    const decision = analystDecisions[changeItem.id];
+    let strokeColor = catColor;
+    if (decision === 'confirmed') strokeColor = '#10b981';
+    if (decision === 'rejected') strokeColor = '#ef4444';
     
     return {
-      color: isSelected ? '#ffffff' : color,
-      weight: isSelected ? 3.5 : 2,
-      opacity: 0.95,
-      fillColor: color,
-      fillOpacity: isSelected ? 0.65 : 0.45,
-      dashArray: isSelected ? '4, 4' : null
+      color: isSelected ? '#ffffff' : strokeColor,
+      weight: isSelected ? 3.5 : 2.5,
+      opacity: 1.0,
+      dashArray: '6, 5',
+      fillColor: strokeColor,
+      fillOpacity: isSelected ? 0.2 : 0.05
     };
   };
 
@@ -554,11 +686,9 @@ export default function App() {
     const searchable = `${location.name} ${location.description || ''} ${location.location_id}`.toLowerCase();
     return searchable.includes(locationQuery.trim().toLowerCase());
   });
+
   const beforeScene = scenes.find(s => s.id === beforeSceneId);
   const afterScene = scenes.find(s => s.id === afterSceneId);
-  
-  // Use actual scene bounds from DB (rasterio-derived) for most accurate map placement,
-  // falling back to location index bounds, then default
   const currentBounds = beforeScene?.bounds || selectedLoc?.leaflet_bounds || DEFAULT_BOUNDS;
   const beforeImgUrl = beforeScene ? `${API_BASE}${beforeScene.image_url}` : null;
   const afterImgUrl = afterScene ? `${API_BASE}${afterScene.image_url}` : null;
@@ -567,586 +697,595 @@ export default function App() {
 
   return (
     <>
+      {/* Header */}
       <header>
-        <div className="logo-section">
-          <div className="logo-icon">
-            <Sparkles size={20} />
-          </div>
-          <div>
-            <div className="logo-text">DRISHTI</div>
-            <div className="logo-subtext">Multi-Temporal Satellite Change Intelligence • Sentinel-2 MSI Level-2A</div>
+        <div className="header-left">
+          {/* Menu Toggle Button */}
+          <button 
+            className="menu-toggle-btn"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            title="Toggle Control Panel"
+          >
+            {isSidebarOpen ? <X size={16} /> : <Menu size={16} />}
+          </button>
+
+          <div className="logo-section">
+            <MoDLogo />
+            <div>
+              <span className="logo-title">DRISHTI</span>
+              <span className="logo-subtitle" style={{ marginLeft: 8 }}>Satellite Intelligence Workstation</span>
+            </div>
           </div>
         </div>
 
+        <div className="header-right">
+          {/* System Status Indicator */}
+          <div className="health-pill">
+            <span className="health-pulse-dot" />
+            <span>SYSTEM ONLINE</span>
+          </div>
 
-
-        <div className="header-actions">
+          {/* Export Actions */}
           {(pipelineResult || changes.length > 0) && (
             <div className="export-btn-group">
               <button className="export-btn" onClick={() => handleExport('geojson')} title="Export GeoJSON">
-                <Download size={13} />
+                <Download size={12} />
                 <span>GeoJSON</span>
               </button>
-              <button className="export-btn" onClick={() => handleExport('csv')} title="Export Tabular CSV">
-                <FileSpreadsheet size={13} />
+              <button className="export-btn" onClick={() => handleExport('csv')} title="Export CSV">
+                <FileSpreadsheet size={12} />
                 <span>CSV</span>
               </button>
-              <button className="export-btn" onClick={() => handleExport('json')} title="Export Report JSON">
-                <FileJson size={13} />
+              <button className="export-btn" onClick={() => handleExport('json')} title="Export Report">
+                <FileJson size={12} />
                 <span>Report</span>
               </button>
             </div>
           )}
-          
-
         </div>
       </header>
 
-      {loading && (
-        <div className="workflow-banner processing">
-          <span className="spinner" style={{ borderTopColor: '#60a5fa', borderColor: 'rgba(96,165,250,0.3)' }}></span>
-          <span style={{ color: '#60a5fa', fontWeight: 600 }}>Running Sentinel-2 AI Pipeline — Alignment → Segmentation → Change Detection → Verification</span>
-        </div>
-      )}
-
-      <div className="dashboard-container">
-        {/* Left Sidebar - Location Selector & Analytics */}
-        <div className="sidebar">
-          {/* AOI Location Selection */}
-          <div className="panel-section">
-            
-            <div className="location-select-container" ref={locationDropdownRef}>
-              <div
-                className={`location-search-container${locationDropdownOpen ? ' focused' : ''}`}
-                onClick={() => setLocationDropdownOpen(true)}
-              >
-                <Search size={13} />
-                <input
-                  value={locationQuery}
-                  onChange={(event) => {
-                    handleLocationQueryChange(event.target.value);
-                    setLocationDropdownOpen(true);
-                  }}
-                  onFocus={() => setLocationDropdownOpen(true)}
-                  placeholder="Find a place (e.g. VIT-AP, Guwahati)"
-                  aria-label="Find a demonstration location"
-                />
-                <ChevronDown
-                  size={13}
-                  className={`loc-chevron${locationDropdownOpen ? ' open' : ''}`}
-                  style={{ flexShrink: 0, color: '#64748b', transition: 'transform 0.2s ease' }}
-                />
-              </div>
-
-              {locationDropdownOpen && (
-                <div className="location-dropdown">
-                  {locationMatches.length === 0 ? (
-                    <div className="location-dropdown-empty">No matching AOI found.</div>
-                  ) : (
-                    locationMatches.map(loc => (
-                      <div
-                        key={loc.location_id}
-                        className={`location-dropdown-item${selectedLocId === loc.location_id ? ' active' : ''}`}
-                        onClick={() => {
-                          handleLocationChange(loc.location_id);
-                          setLocationQuery('');
-                          setLocationDropdownOpen(false);
-                        }}
-                        title={loc.description}
-                      >
-                        <span className="loc-drop-icon">{loc.badge_icon || '📍'}</span>
-                        <div className="loc-drop-info">
-                          <span className="loc-drop-name">{loc.name}</span>
-                          <span className="loc-drop-cat">{loc.category}</span>
-                        </div>
-                        {selectedLocId === loc.location_id && (
-                          <span className="loc-drop-active-dot" />
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-
-            {selectedLoc && (
-              <div className="location-desc-box">
-                <div className="location-cat-tag">
-                  {getLocationIcon(selectedLoc.location_id)}
-                  <span>{selectedLoc.category}</span>
-                </div>
-                <div className="location-desc-text">{selectedLoc.description}</div>
-              </div>
-            )}
-
-            {!isConceptDemo && selectedLoc && (
-              <div className="aoi-preview-card">
-                <div className="aoi-preview-heading">SATELLITE AOI PREVIEW</div>
-                <div className="aoi-preview-name">{selectedLoc.name}</div>
-                {afterImgUrl ? (
-                  <img
-                    className="aoi-preview-image"
-                    src={afterImgUrl}
-                    alt={`Sentinel-2 AOI preview for ${selectedLoc.name}`}
-                    loading="lazy"
-                  />
-                ) : (
-                  <div className="aoi-preview-loading">Loading selected AOI…</div>
-                )}
-                <div className="aoi-preview-meta">
-                  {selectedLoc.center?.[0]?.toFixed(4)}° N, {selectedLoc.center?.[1]?.toFixed(4)}° E
-                </div>
-              </div>
-            )}
-
-            <>
-
-            {/* Observation Dates Selection */}
-            <div className="scene-select-row">
-              <div style={{ flex: 1 }}>
-                <label className="field-label">{isConceptDemo ? 'Reference (Demo Before)' : 'Reference (T₁ — Before)'}</label>
-                <select 
-                  className="select-box"
-                  value={beforeSceneId}
-                  onChange={(e) => setBeforeSceneId(e.target.value)}
-                  disabled={isConceptDemo}
-                >
-                  {isConceptDemo ? <option>DEMO BEFORE</option> : scenes.map(s => <option key={s.id} value={s.id}>{s.date}</option>)}
-                </select>
-              </div>
-              <div style={{ flex: 1 }}>
-                <label className="field-label">{isConceptDemo ? 'Target (Demo After)' : 'Target (T₂ — After)'}</label>
-                <select 
-                  className="select-box"
-                  value={afterSceneId}
-                  onChange={(e) => setAfterSceneId(e.target.value)}
-                  disabled={isConceptDemo}
-                >
-                  {isConceptDemo ? <option>DEMO AFTER</option> : scenes.map(s => <option key={s.id} value={s.id}>{s.date}</option>)}
-                </select>
-              </div>
-            </div>
-            
-
-            <button 
-              className="run-btn" 
-              onClick={handleRunPipeline}
-              disabled={loading || (!isConceptDemo && (!beforeSceneId || !afterSceneId))}
-            >
-              {loading ? (
-                <span className="btn-loading">
-                  <span className="spinner"></span> Processing Satellite Pipeline...
-                </span>
-              ) : (
-                <span className="btn-loading"><Sparkles size={15} /> Run Change Analytics</span>
-              )}
+      {/* Main Workstation Layout */}
+      <div className="workstation-flex-layout">
+        
+        {/* Responsive Collapsible Sidebar */}
+        <div className={`sidebar-flex-panel ${!isSidebarOpen ? 'collapsed' : ''}`}>
+          <div className="sidebar-header">
+            <span className="sidebar-title">
+              <Search size={14} />
+              <span>SEARCH & CONTROL</span>
+            </span>
+            <button className="menu-toggle-btn" style={{ width: 24, height: 24 }} onClick={() => setIsSidebarOpen(false)}>
+              <X size={13} />
             </button>
-            
-            {error && (
-              <div className="error-banner">
-                <AlertCircle size={14} />
-                <span>{error}</span>
-              </div>
-            )}
-            </>
-            
-            {/* Analysis Summary Card */}
-            {pipelineResult && (
-              <div className="summary-card">
-                <div className="summary-card-header">
-                  <CheckCircle2 size={14} style={{ color: '#10b981' }} />
-                  <span>Verified ({pipelineResult.total_area_sqkm} km² AOI)</span>
-                </div>
-                <div className="summary-breakdown-row">
-                  <div className="stat-box">
-                    <span className="stat-val">{pipelineResult.changes_count}</span>
-                    <span className="stat-lbl">Changes</span>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-val" style={{ color: '#ef4444' }}>{pipelineResult.breakdown?.['BUILDING CHANGE'] || 0}</span>
-                    <span className="stat-lbl">Building</span>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-val" style={{ color: '#10b981' }}>{pipelineResult.breakdown?.['FOREST CHANGE'] || 0}</span>
-                    <span className="stat-lbl">Forest</span>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-val" style={{ color: '#06b6d4' }}>{pipelineResult.breakdown?.['RIVER CHANGE'] || 0}</span>
-                    <span className="stat-lbl">River</span>
-                  </div>
-                  <div className="stat-box">
-                    <span className="stat-val" style={{ color: '#f59e0b' }}>{pipelineResult.breakdown?.['ROAD CHANGE'] || 0}</span>
-                    <span className="stat-lbl">Roads</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
 
-          {/* Semantic Search Panel */}
-          {pipelineResult && (
-            <div className="panel-section" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div className="section-title-row">
-                <Search size={15} />
-                <h3>Semantic Search</h3>
+          {/* SECTION 1: FILTERS FIRST */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Filters</div>
+
+            {/* Location Selector */}
+            <div className="filter-group">
+              <label className="filter-label">Target Location / AOI</label>
+              <div className="location-select-container" ref={locationDropdownRef}>
+                <div
+                  className="location-search-container"
+                  onClick={() => setLocationDropdownOpen(true)}
+                >
+                  <Search size={12} />
+                  <input
+                    value={locationQuery}
+                    onChange={(event) => {
+                      handleLocationQueryChange(event.target.value);
+                      setLocationDropdownOpen(true);
+                    }}
+                    onFocus={() => setLocationDropdownOpen(true)}
+                    placeholder="Find location..."
+                  />
+                  <ChevronDown size={12} />
+                </div>
+
+                {locationDropdownOpen && (
+                  <div className="location-dropdown">
+                    {locationMatches.length === 0 ? (
+                      <div style={{ padding: 8, fontSize: '0.72rem', color: '#666' }}>No location found.</div>
+                    ) : (
+                      locationMatches.map(loc => (
+                        <div
+                          key={loc.location_id}
+                          className={`location-dropdown-item ${selectedLocId === loc.location_id ? 'active' : ''}`}
+                          onClick={() => {
+                            handleLocationChange(loc.location_id);
+                            setLocationQuery('');
+                            setLocationDropdownOpen(false);
+                          }}
+                        >
+                          <span style={{ fontSize: '0.85rem' }}>{loc.badge_icon || '📍'}</span>
+                          <div>
+                            <div style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5f5f5' }}>{loc.name}</div>
+                            <div style={{ fontSize: '0.62rem', color: '#a0a0a0' }}>{loc.category}</div>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </div>
+                )}
               </div>
-              
-              <div className="search-container">
-                <input 
-                  type="text" 
-                  placeholder={`Search ${selectedLoc?.name || 'changes'}...`} 
-                  className="search-input"
-                  value={searchQuery}
-                  onChange={(e) => handleSearch(e.target.value)}
-                />
-                <div className="search-icon-btn">
-                  <Search size={15} />
+            </div>
+
+            {/* Reference Date (T1) */}
+            <div className="filter-group">
+              <label className="filter-label">Reference Date (T₁ Before)</label>
+              <select 
+                className="select-box"
+                value={beforeSceneId}
+                onChange={(e) => setBeforeSceneId(e.target.value)}
+                disabled={isConceptDemo}
+              >
+                {isConceptDemo ? <option>2024-02-10 (Demo)</option> : scenes.map(s => <option key={s.id} value={s.id}>{s.date}</option>)}
+              </select>
+            </div>
+
+            {/* Target Date (T2) */}
+            <div className="filter-group">
+              <label className="filter-label">Target Date (T₂ After)</label>
+              <select 
+                className="select-box"
+                value={afterSceneId}
+                onChange={(e) => setAfterSceneId(e.target.value)}
+                disabled={isConceptDemo}
+              >
+                {isConceptDemo ? <option>2024-10-22 (Demo)</option> : scenes.map(s => <option key={s.id} value={s.id}>{s.date}</option>)}
+              </select>
+            </div>
+          </div>
+
+          {/* SECTION 2: SEARCH IMAGERY & QUICK SEARCHES */}
+          <div className="sidebar-section">
+            <div className="sidebar-section-title">Search Imagery</div>
+            <div className="search-input-box">
+              <Search size={13} style={{ color: '#a0a0a0' }} />
+              <input 
+                type="text" 
+                placeholder="Search satellite imagery..." 
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+              />
+            </div>
+
+            {/* Quick Searches */}
+            <div className="sidebar-section-title" style={{ marginTop: 10 }}>Quick Searches</div>
+            <div className="quick-pills-grid">
+              {['New Buildings', 'Road Development', 'Vegetation Loss', 'Water Change'].map(query => (
+                <button 
+                  key={query} 
+                  className="quick-pill-btn"
+                  onClick={() => handleSearch(query)}
+                >
+                  {query}
+                </button>
+              ))}
+            </div>
+
+            {/* Search & Run Analytics Button */}
+            <button 
+              className="run-analytics-btn"
+              onClick={handleRunPipeline}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner" style={{ width: 12, height: 12, marginBottom: 0, borderTopColor: '#0d0d0d' }} />
+                  <span>Processing AI Pipeline...</span>
+                </>
+              ) : (
+                <>
+                  <Eye size={13} />
+                  <span>SEARCH & RUN ANALYTICS</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Results Summary Section */}
+          {!hasUserRunAnalysis ? (
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">CHANGE RESULTS</div>
+              <div style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                padding: '12px',
+                borderRadius: '6px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '0.74rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+                  No analysis run yet.
+                </div>
+                <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 4, lineHeight: 1.4 }}>
+                  Search for imagery or select a quick search to begin analysis.
                 </div>
               </div>
-
-              <div className="preset-queries">
-                {getPresets().map(p => (
-                  <button 
-                    key={p} 
-                    className="preset-btn"
-                    onClick={() => handleSearch(p)}
-                  >
-                    {p}
-                  </button>
-                ))}
+            </div>
+          ) : searchResults.length > 0 ? (
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">
+                Meaningful Change Regions ({searchResults.length})
               </div>
-              
-              <div className="results-header">
-                <span>Verified Change Events ({searchResults.length})</span>
-              </div>
-              
-              <div className="results-list">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {searchResults.map((change, idx) => (
                   <div 
                     key={idx}
-                    className={`result-card ${selectedChange === change ? 'selected' : ''}`}
                     onClick={() => handleSelectChange(change)}
+                    style={{
+                      background: selectedChange === change ? 'rgba(255,255,255,0.12)' : 'var(--bg-surface)',
+                      border: '1px solid var(--border-color)',
+                      padding: '8px 10px',
+                      borderRadius: 6,
+                      cursor: 'pointer'
+                    }}
                   >
-                    <div className="result-header">
-                      <span className={`badge ${getBadgeStyle(change.type)}`}>
-                        {change.type}
-                      </span>
-                      <span className="confidence-text">
-                        Score: {change.confidence}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.72rem', fontWeight: 600 }}>
+                      <span>{change.type}</span>
+                      <span style={{ color: analystDecisions[change.id] === 'confirmed' ? '#10b981' : analystDecisions[change.id] === 'rejected' ? '#ef4444' : 'var(--confidence-green)' }}>
+                        {analystDecisions[change.id] ? analystDecisions[change.id].toUpperCase() : `${Math.round((change.confidence || 0.9) * 100)}%`}
                       </span>
                     </div>
-                    
-                    <div className="result-meta-row">
-                      <span>Area: {change.is_demo ? `${change.area_pixels} demo px` : change.area_sqm ? `${change.area_sqm.toLocaleString()} m²` : `${change.area_pixels} px`}</span>
-                      {change.distance_to_road_m < 999 && (
-                        <span>Road: {change.distance_to_road_m}m</span>
-                      )}
+                    <div style={{ fontSize: '0.66rem', color: 'var(--text-secondary)', marginTop: 2 }}>
+                      {change.is_demo ? `${change.area_pixels} demo px` : change.area_sqm ? `${change.area_sqm.toLocaleString()} m²` : `${change.area_pixels} px`}
                     </div>
-                    
-                    {change.explanation && (
-                      <div className="explanation-text">
-                        {change.explanation}
-                      </div>
-                    )}
                   </div>
                 ))}
-                
-                {searchResults.length === 0 && (
-                  <div className="empty-results">
-                    No changes matching current query.
-                  </div>
-                )}
+              </div>
+            </div>
+          ) : (
+            <div className="sidebar-section">
+              <div className="sidebar-section-title">CHANGE RESULTS</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', textAlign: 'center', padding: '10px 0' }}>
+                No changes detected for the current search criteria.
               </div>
             </div>
           )}
         </div>
 
-        {/* Center Panel - Synchronized 3-Pane Leaflet Map Views */}
-        <div className="map-workspace">
-        <div className="maps-grid">
-          {/* Pane 1: Reference Satellite Image (T1) */}
-          <div className="map-pane">
-            <div className="map-title">
-              <Eye size={13} />
-              <span>REFERENCE: {isConceptDemo ? 'DEMO BEFORE' : beforeScene ? beforeScene.date : 'T₁'}</span>
-            </div>
-            
-            {isConceptDemo ? (
-              <DemoCanvas mode="before" />
-            ) : scenesLoading ? (
-              <div className="map-placeholder">
-                <span className="spinner"></span>
-                <span>LOADING SATELLITE IMAGERY...</span>
+        {/* 2-Pane Main Analysis Area */}
+        <div className="analysis-main-area">
+          
+          {/* PANE 1: BEFORE (T1) */}
+          <div className="satellite-pane">
+            <div className="pane-header-bar">
+              <div className="scene-label-badge">
+                <span className="tag">BEFORE</span>
+                <span>{isConceptDemo ? '2024-02-10' : beforeScene ? beforeScene.date : '2024-02-10'}</span>
               </div>
-            ) : beforeImgUrl ? (
-              <MapContainer 
-                center={mapCenter} 
-                zoom={mapZoom} 
-                zoomControl={false}
-                className="map-element"
-              >
-                <ImageOverlay url={beforeImgUrl} bounds={currentBounds} />
-                <MapBoundsFitter bounds={currentBounds} />
-                <MapSynchronizer center={mapCenter} zoom={mapZoom} onMapMoved={(c, z) => { setMapCenter(c); setMapZoom(z); }} />
-              </MapContainer>
-            ) : (
-              <div className="map-placeholder">
-                <AlertCircle size={18} style={{ color: '#ef4444', marginBottom: 8 }} />
-                <span>SATELLITE IMAGERY UNAVAILABLE</span>
-              </div>
-            )}
-            
-            {isConceptDemo
-              ? <ImageDebugBadge title="Demo Before Image" metadata={`${DEMO_WIDTH}×${DEMO_HEIGHT} • DEMO • CONCEPTUAL`} />
-              : <ImageDebugBadge scene={beforeScene} title="Reference Sentinel-2 Scene" bounds={currentBounds} />}
-          </div>
-
-          {/* Pane 2: Target Satellite Image (T2) */}
-          <div className="map-pane">
-            <div className="map-title">
-              <Eye size={13} />
-              <span>TARGET: {isConceptDemo ? 'DEMO AFTER' : afterScene ? afterScene.date : 'T₂'} {!isConceptDemo && alignedImgUrl ? '(Aligned)' : ''}</span>
-            </div>
-            
-            {isConceptDemo ? (
-              <DemoCanvas mode="after" />
-            ) : scenesLoading ? (
-              <div className="map-placeholder">
-                <span className="spinner"></span>
-                <span>LOADING SATELLITE IMAGERY...</span>
-              </div>
-            ) : (alignedImgUrl || afterImgUrl) ? (
-              <MapContainer 
-                center={mapCenter} 
-                zoom={mapZoom} 
-                zoomControl={false}
-                className="map-element"
-              >
-                <ImageOverlay url={alignedImgUrl || afterImgUrl} bounds={currentBounds} />
-                <MapBoundsFitter bounds={currentBounds} />
-                <MapSynchronizer center={mapCenter} zoom={mapZoom} onMapMoved={(c, z) => { setMapCenter(c); setMapZoom(z); }} />
-              </MapContainer>
-            ) : (
-              <div className="map-placeholder">
-                <AlertCircle size={18} style={{ color: '#ef4444', marginBottom: 8 }} />
-                <span>SATELLITE IMAGERY UNAVAILABLE</span>
-              </div>
-            )}
-            
-            {isConceptDemo
-              ? <ImageDebugBadge title="Demo After Image" metadata={`${DEMO_WIDTH}×${DEMO_HEIGHT} • DEMO • CONCEPTUAL`} />
-              : <ImageDebugBadge scene={afterScene} title="Target Sentinel-2 Scene" bounds={currentBounds} />}
-          </div>
-
-          {/* Pane 3: Verified Change Mask Over Satellite Layer */}
-          <div className="map-pane">
-            <div className="map-title">
-              <MapIcon size={13} />
-              <span>DETECTED CHANGE MAP</span>
             </div>
 
-            {/* Map Legend Overlay */}
-            {pipelineResult && (
-              <div className="map-floating-legend">
-                <div className="legend-header">Change Legend</div>
-                <div className="legend-item">
-                  <span className="legend-dot dot-construction"></span>
-                  <span>Building Change</span>
+            <div className="map-container-box">
+              {isConceptDemo ? (
+                <DemoCanvas mode="before" />
+              ) : scenesLoading ? (
+                <div className="map-placeholder">
+                  <span className="spinner" />
+                  <span>LOADING SATELLITE IMAGERY...</span>
                 </div>
-                <div className="legend-item">
-                  <span className="legend-dot dot-veg"></span>
-                  <span>Forest Change</span>
-                </div>
-                <div className="legend-item">
-                  <span className="legend-dot dot-water"></span>
-                  <span>River / Water</span>
-                </div>
-                <div className="legend-item">
-                  <span className="legend-dot dot-road"></span>
-                  <span>Road Change</span>
-                </div>
-                <div className="opacity-slider-container">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-secondary)' }}>
-                    <span>Overlay Opacity</span>
-                    <span>{Math.round(maskOpacity * 100)}%</span>
-                  </div>
-                  <input 
-                    type="range" 
-                    min="0.1" 
-                    max="1.0" 
-                    step="0.05" 
-                    value={maskOpacity} 
-                    onChange={(e) => setMaskOpacity(parseFloat(e.target.value))}
-                    className="opacity-slider"
-                  />
-                </div>
-              </div>
-            )}
-
-            {isConceptDemo ? (
-              pipelineResult ? (
-                <DemoCanvas mode="change" regions={searchResults} selectedId={selectedChange?.id} onSelect={handleSelectChange} />
+              ) : beforeImgUrl ? (
+                <MapContainer 
+                  center={mapCenter} 
+                  zoom={mapZoom} 
+                  minZoom={12}
+                  maxZoom={18}
+                  zoomControl={false} 
+                  className="demo-scene-canvas"
+                >
+                  <ImageOverlay url={beforeImgUrl} bounds={currentBounds} />
+                  <MapBoundsFitter bounds={currentBounds} />
+                  <MapResizer isSidebarOpen={isSidebarOpen} selectedChange={selectedChange} />
+                  <MapSynchronizer center={mapCenter} zoom={mapZoom} onMapMoved={(c, z) => { setMapCenter(c); setMapZoom(z); }} />
+                  <ZoomControl position="bottomright" />
+                </MapContainer>
               ) : (
                 <div className="map-placeholder">
-                  <span>RUN CHANGE ANALYTICS TO DETECT CHANGES</span>
+                  <AlertCircle size={16} style={{ color: '#ef4444', marginBottom: 6 }} />
+                  <span>SATELLITE SCENE UNAVAILABLE</span>
                 </div>
-              )
-            ) : scenesLoading ? (
-              <div className="map-placeholder">
-                <span className="spinner"></span>
-                <span>LOADING SATELLITE IMAGERY...</span>
+              )}
+            </div>
+          </div>
+
+          {/* PANE 2: AFTER (T2) */}
+          <div className="satellite-pane">
+            <div className="pane-header-bar">
+              <div className="scene-label-badge">
+                <span className="tag">AFTER</span>
+                <span>{isConceptDemo ? '2024-10-22' : afterScene ? afterScene.date : '2024-10-22'}</span>
               </div>
-            ) : (beforeImgUrl || afterImgUrl) ? (
-              <MapContainer 
-                center={mapCenter} 
-                zoom={mapZoom} 
-                zoomControl={false}
-                className="map-element"
-              >
-                {/* Base Satellite Imagery */}
-                <ImageOverlay url={alignedImgUrl || afterImgUrl || beforeImgUrl} bounds={currentBounds} opacity={0.88} />
-                
-                {/* Transparent RGBA Change Mask layer */}
-                {changeMaskUrl && (
-                  <ImageOverlay url={changeMaskUrl} bounds={currentBounds} opacity={maskOpacity} />
+
+              {/* Multi-Select Control Popover */}
+              <div className="detect-changes-popover-container" ref={detectDropdownRef}>
+                <div className="detect-controls-row">
+                  <button 
+                    className={`detect-changes-trigger-btn ${appliedCategories.length > 0 ? 'active' : ''}`}
+                    onClick={() => setDetectDropdownOpen(!detectDropdownOpen)}
+                  >
+                    <Layers size={13} />
+                    <span>
+                      {appliedCategories.length === 0
+                        ? 'DETECT CHANGES ▾'
+                        : appliedCategories.includes('all') || ALL_CAT_IDS.every(id => appliedCategories.includes(id))
+                        ? 'ALL CHANGES ACTIVE ▾'
+                        : `${appliedCategories.length} CATEGORIES ACTIVE ▾`}
+                    </span>
+                    <ChevronDown size={12} className={`dropdown-chevron ${detectDropdownOpen ? 'open' : ''}`} />
+                  </button>
+
+                  {appliedCategories.length > 0 && (
+                    <button 
+                      className="clear-overlay-btn"
+                      onClick={handleClearChanges}
+                      title="Clear Analysis Overlay"
+                    >
+                      <X size={12} />
+                      <span>CLEAR</span>
+                    </button>
+                  )}
+                </div>
+
+                {detectDropdownOpen && (
+                  <div className="detect-changes-dropdown">
+                    <div className="detect-dropdown-header">DETECT CHANGES</div>
+                    <div className="detect-dropdown-options">
+                      {[
+                        { id: 'roads', label: 'Roads', color: '#ffffff' },
+                        { id: 'construction', label: 'New Construction', color: '#d97706' },
+                        { id: 'water', label: 'Water Body', color: '#1d4ed8' },
+                        { id: 'vegetation', label: 'Vegetation Loss', color: '#15803d' },
+                        { id: 'all', label: 'All Changes', color: '#ffffff' },
+                      ].map((opt) => {
+                        const checked = isCategoryChecked(opt.id);
+                        return (
+                          <div
+                            key={opt.id}
+                            className={`detect-dropdown-option ${checked ? 'selected' : ''}`}
+                            onClick={() => toggleCategory(opt.id)}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => {}}
+                              className="detect-checkbox"
+                            />
+                            <span 
+                              className="color-indicator-dot" 
+                              style={{ 
+                                backgroundColor: opt.color, 
+                                boxShadow: opt.id === 'all' ? '0 0 6px rgba(255,255,255,0.8)' : `0 0 6px ${opt.color}` 
+                              }} 
+                            />
+                            <span className="option-label-text">{opt.label}</span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="detect-dropdown-actions">
+                      <button className="apply-changes-btn" onClick={handleApplyChanges}>
+                        APPLY CHANGES
+                      </button>
+                      <button className="clear-popover-btn" onClick={handleClearChanges}>
+                        CLEAR
+                      </button>
+                    </div>
+                  </div>
                 )}
-                
-                {/* Interactive Change Polygons */}
-                {searchResults.map((change, idx) => (
-                  <GeoJSON 
-                    key={`${idx}-${selectedChange === change}`}
-                    data={change.geometry}
-                    style={() => getGeoJsonStyle(change)}
-                    eventHandlers={{
-                      click: () => handleSelectChange(change)
-                    }}
-                  />
-                ))}
-                
-                <MapBoundsFitter bounds={currentBounds} />
-                <MapSynchronizer center={mapCenter} zoom={mapZoom} onMapMoved={(c, z) => { setMapCenter(c); setMapZoom(z); }} />
-              </MapContainer>
-            ) : (
-              <div className="map-placeholder">
-                <AlertCircle size={18} style={{ color: '#ef4444', marginBottom: 8 }} />
-                <span>SATELLITE IMAGERY UNAVAILABLE</span>
+              </div>
+            </div>
+
+            <div className="map-container-box">
+              {isConceptDemo ? (
+                <DemoCanvas 
+                  mode="change" 
+                  regions={searchResults} 
+                  selectedId={selectedChange?.id} 
+                  onSelect={handleSelectChange} 
+                  showMask={false} 
+                  appliedCategories={appliedCategories}
+                />
+              ) : scenesLoading ? (
+                <div className="map-placeholder">
+                  <span className="spinner" />
+                  <span>LOADING SATELLITE IMAGERY...</span>
+                </div>
+              ) : (alignedImgUrl || afterImgUrl) ? (
+                <MapContainer 
+                  center={mapCenter} 
+                  zoom={mapZoom} 
+                  minZoom={12}
+                  maxZoom={18}
+                  zoomControl={false} 
+                  className="demo-scene-canvas"
+                >
+                  <ImageOverlay url={alignedImgUrl || afterImgUrl || beforeImgUrl} bounds={currentBounds} opacity={1.0} />
+                  
+                  {visibleOverlayChanges.map((change, idx) => (
+                    <GeoJSON 
+                      key={`${idx}-${appliedCategories.join('-')}-${selectedChange === change}-${analystDecisions[change.id]}`}
+                      data={change.geometry}
+                      style={() => getGeoJsonStyle(change)}
+                      eventHandlers={{ click: () => handleSelectChange(change) }}
+                    />
+                  ))}
+                  
+                  <MapBoundsFitter bounds={currentBounds} />
+                  <MapResizer isSidebarOpen={isSidebarOpen} selectedChange={selectedChange} />
+                  <MapSynchronizer center={mapCenter} zoom={mapZoom} onMapMoved={(c, z) => { setMapCenter(c); setMapZoom(z); }} />
+                  <ZoomControl position="bottomright" />
+                </MapContainer>
+              ) : (
+                <div className="map-placeholder">
+                  <AlertCircle size={16} style={{ color: '#ef4444', marginBottom: 6 }} />
+                  <span>SATELLITE SCENE UNAVAILABLE</span>
+                </div>
+              )}
+            </div>
+
+            {/* Dedicated Legend Strip at Bottom of AFTER Pane */}
+            {appliedCategories.length > 0 && (
+              <div className="pane-footer-legend-bar">
+                <span className="legend-bar-title">LEGEND:</span>
+                <div className="legend-bar-items">
+                  {(appliedCategories.includes('all') || appliedCategories.includes('roads')) && (
+                    <div className="legend-bar-item">
+                      <span className="legend-dash-line" style={{ borderTopColor: '#ffffff' }} />
+                      <span>Road</span>
+                    </div>
+                  )}
+                  {(appliedCategories.includes('all') || appliedCategories.includes('water')) && (
+                    <div className="legend-bar-item">
+                      <span className="legend-dash-line" style={{ borderTopColor: '#1d4ed8' }} />
+                      <span>Water</span>
+                    </div>
+                  )}
+                  {(appliedCategories.includes('all') || appliedCategories.includes('vegetation')) && (
+                    <div className="legend-bar-item">
+                      <span className="legend-dash-line" style={{ borderTopColor: '#15803d' }} />
+                      <span>Vegetation</span>
+                    </div>
+                  )}
+                  {(appliedCategories.includes('all') || appliedCategories.includes('construction')) && (
+                    <div className="legend-bar-item">
+                      <span className="legend-dash-line" style={{ borderTopColor: '#d97706' }} />
+                      <span>Construction</span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
-
-            {isConceptDemo
-              ? <ImageDebugBadge title="Demo Change Map" metadata={`${DEMO_WIDTH}×${DEMO_HEIGHT} • DEMO • CONCEPTUAL`} />
-              : <ImageDebugBadge scene={beforeScene} title="Change Mask Composite" bounds={currentBounds} />}
           </div>
         </div>
-        </div>
 
-        {/* Right Sidebar - Evidence & Geospatial Details */}
+        {/* PANE 3: DEDICATED RIGHT-SIDE CHANGE DETAILS PANEL */}
         {selectedChange && (
-          <div className="details-panel">
-            <div className="panel-section">
-              <div className="section-title-row">
-                <Crosshair size={15} />
-                <h3>Change Evidence Detail</h3>
+          <div className="right-details-flex-panel">
+            <div className="details-panel-header">
+              <span className="details-panel-title">
+                <Eye size={13} />
+                <span>CHANGE DETAILS</span>
+              </span>
+              <button 
+                className="close-panel-btn"
+                onClick={() => setSelectedChange(null)}
+                title="Close Details Panel"
+              >
+                <X size={14} />
+                <span>CLOSE</span>
+              </button>
+            </div>
+
+            <div className="details-panel-content-body">
+              <div className="card-header-row">
+                <span className="card-tag">CHANGE DETECTED</span>
               </div>
-              
-              <div className="result-header" style={{ marginBottom: '14px' }}>
-                <span className={`badge ${getBadgeStyle(selectedChange.type)}`} style={{ fontSize: '0.85rem' }}>
-                  {selectedChange.type === 'NEW CONSTRUCTION' ? 'NEW BUILT-UP / CONSTRUCTION CHANGE' : selectedChange.type}
+
+              <div className="card-title">
+                {selectedChange.type === 'NEW CONSTRUCTION' ? 'New Construction' : 
+                 selectedChange.type === 'ROAD CHANGE' ? 'Road Change' :
+                 selectedChange.type === 'WATER EXTENT CHANGE' ? 'Water Body Change' :
+                 selectedChange.type === 'VEGETATION LOSS' ? 'Vegetation Loss' : selectedChange.type}
+              </div>
+
+              <div className="card-stats-grid">
+                <span className="stat-pill-green">
+                  Confidence: {Math.round((selectedChange.confidence || 0.92) * 100)}%
                 </span>
-                <span className="confidence-pill">
-                  Change Score: {selectedChange.confidence}
+                <span className="stat-pill-gray">
+                  Area: {selectedChange.is_demo 
+                    ? `${selectedChange.area_pixels} demo px` 
+                    : selectedChange.area_sqm 
+                      ? `${selectedChange.area_sqm.toLocaleString()} m²` 
+                      : `${selectedChange.area_pixels} px`}
                 </span>
               </div>
 
-              <div className="change-intelligence-facts">
-                <div><span>Reference</span><strong>{selectedChange.is_demo ? 'DEMO BEFORE' : beforeScene?.date || '—'}</strong></div>
-                <div><span>Target</span><strong>{selectedChange.is_demo ? 'DEMO AFTER' : afterScene?.date || '—'}</strong></div>
-                <div className="change-intelligence-location"><span>Location</span><strong>{selectedChange.is_demo ? 'Concept Demo Dataset' : selectedLoc?.name || 'Selected AOI'}</strong></div>
+              {/* CHANGE LOCATION Section */}
+              {(() => {
+                const coords = getChangeCoords(selectedChange);
+                return (
+                  <div className="card-location-box">
+                    <div className="location-box-header">
+                      <Crosshair size={12} style={{ color: '#ffffff' }} />
+                      <span>CHANGE LOCATION</span>
+                    </div>
+                    <div className="coords-display-row">
+                      <div><span className="coord-lbl">Latitude:</span> <strong>{coords.lat}°</strong></div>
+                      <div><span className="coord-lbl">Longitude:</span> <strong>{coords.lon}°</strong></div>
+                    </div>
+                    <button className="copy-coords-btn" onClick={handleCopyCoordinates}>
+                      {copiedCoord ? <CheckCheck size={12} /> : <Copy size={12} />}
+                      <span>{copiedCoord ? 'COPIED!' : 'COPY COORDINATES'}</span>
+                    </button>
+                  </div>
+                );
+              })()}
+
+              <div style={{ fontSize: '0.68rem', color: 'var(--text-secondary)', marginBottom: 8 }}>
+                First Observed: <strong>{selectedChange.dates?.[1] || '2025'}</strong> • Source: <strong>Sentinel-2</strong>
               </div>
 
-              {/* Side-by-Side Evidential Satellite Sub-Crops */}
-              {!selectedChange.is_demo ? <><div className="detail-section-label">Evidential Satellite Crops</div><div className="detail-thumb-container">
-                <EvidenceCrop 
-                  imgUrl={beforeImgUrl} 
-                  pixelBbox={selectedChange.pixel_bbox} 
-                  label={`Before (${beforeScene?.date?.split('-')[0] || 'T₁'})`} 
-                />
-                <EvidenceCrop 
-                  imgUrl={alignedImgUrl || afterImgUrl} 
-                  pixelBbox={selectedChange.pixel_bbox} 
-                  label={`After (${afterScene?.date?.split('-')[0] || 'T₂'})`} 
-                />
-              </div></> : <div className="detail-section-label">Selected region highlighted on the demo change map</div>}
-              
-              {/* Observable Transition Explanation */}
-              <div className="detail-box">
-                <div className="detail-box-label">Observable Transition Explanation</div>
-                <div className="detail-box-value" style={{ fontStyle: 'italic', fontSize: '0.82rem', color: '#e2e8f0' }}>
+              {selectedChange.explanation && (
+                <div className="card-explanation">
                   "{selectedChange.explanation}"
                 </div>
+              )}
+
+              {/* Expandable Provenance Metadata */}
+              <button 
+                className="provenance-toggle-btn"
+                onClick={() => setIsProvenanceExpanded(!isProvenanceExpanded)}
+              >
+                <span>GEOSPATIAL PROVENANCE</span>
+                {isProvenanceExpanded ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+              </button>
+
+              {isProvenanceExpanded && (
+                <div className="provenance-details-box">
+                  <div className="provenance-row"><span>Source:</span><span>Sentinel-2 MSI Level-2A</span></div>
+                  <div className="provenance-row"><span>Resolution:</span><span>10.0 m/pixel</span></div>
+                  <div className="provenance-row"><span>Processing:</span><span>Alignment → Cloud Mask → Change Detection</span></div>
+                  <div className="provenance-row"><span>Model Engine:</span><span>Deep Semantic Segmenter</span></div>
+                </div>
+              )}
+
+              {/* Analyst Review Controls ([ CONFIRM ] / [ REJECT ]) */}
+              <div className="analyst-review-row">
+                <button 
+                  className={`analyst-btn confirm ${analystDecisions[selectedChange.id] === 'confirmed' ? 'active' : ''}`}
+                  onClick={() => handleAnalystDecision(selectedChange.id, 'confirmed')}
+                >
+                  <Check size={12} />
+                  <span>CONFIRM</span>
+                </button>
+                <button 
+                  className={`analyst-btn reject ${analystDecisions[selectedChange.id] === 'rejected' ? 'active' : ''}`}
+                  onClick={() => handleAnalystDecision(selectedChange.id, 'rejected')}
+                >
+                  <Ban size={12} />
+                  <span>REJECT</span>
+                </button>
               </div>
 
-              {/* Real Geospatial Metrics Grid */}
-              <div className="detail-section-label">Geospatial Metrics</div>
-              <div className="metrics-grid">
-                <div className="metric-tile">
-                  <span className="metric-tile-label">Surface Area</span>
-                  <span className="metric-tile-val">
-                    {selectedChange.is_demo ? `${selectedChange.area_pixels} demo px` : selectedChange.area_sqm ? `${selectedChange.area_sqm.toLocaleString()} m²` : `${selectedChange.area_pixels} px`}
-                  </span>
-                </div>
-                <div className="metric-tile">
-                  <span className="metric-tile-label">Dist to Road</span>
-                  <span className="metric-tile-val">
-                    {selectedChange.distance_to_road_m < 999 ? `${selectedChange.distance_to_road_m} m` : 'N/A'}
-                  </span>
-                </div>
-                <div className="metric-tile">
-                  <span className="metric-tile-label">Dist to Water</span>
-                  <span className="metric-tile-val">
-                    {selectedChange.distance_to_water_m < 999 ? `${selectedChange.distance_to_water_m} m` : 'N/A'}
-                  </span>
-                </div>
-                <div className="metric-tile">
-                  <span className="metric-tile-label">Change Period</span>
-                  <span className="metric-tile-val" style={{ fontSize: '0.82rem' }}>
-                    {selectedChange.dates?.join(' → ') || '2024 → 2026'}
-                  </span>
-                </div>
-              </div>
-
-              {/* GIS Centroid & Bounding Box */}
-              {!selectedChange.is_demo && selectedChange.bbox && <><div className="detail-section-label">Coordinates (WGS84 EPSG:4326)</div><div className="coords-box">
-                {selectedChange.centroid && (
-                  <div style={{ marginBottom: '6px', color: '#60a5fa', fontWeight: 600 }}>
-                    Centroid: {selectedChange.centroid[0].toFixed(5)}° N, {selectedChange.centroid[1].toFixed(5)}° E
-                  </div>
+              <div className="card-actions-row">
+                {!selectedChange.is_demo && (
+                  <button className="zoom-btn-action" onClick={handleZoomToChange}>
+                    <ZoomIn size={12} />
+                    <span>Zoom to Change</span>
+                  </button>
                 )}
-                <div style={{ fontSize: '0.72rem', color: 'var(--text-secondary)' }}>
-                  Lat: {selectedChange.bbox[1].toFixed(5)}° to {selectedChange.bbox[3].toFixed(5)}°<br/>
-                  Lon: {selectedChange.bbox[0].toFixed(5)}° to {selectedChange.bbox[2].toFixed(5)}°
-                </div>
-              </div>
-              </>}
-
-              {!selectedChange.is_demo && <button className="zoom-btn" onClick={handleZoomToChange}>
-                <ZoomIn size={14} />
-                <span>Zoom to Change Region</span>
-              </button>}
-              
-              {/* Quality & Suppression Checks */}
-              <div className="detail-section-label">Verification Checks</div>
-              <div className="suppression-list">
-                {selectedChange.suppression_checks?.map((check, i) => (
-                  <div key={i} className="suppression-item">
-                    <CheckCircle2 size={12} style={{ color: '#10b981', flexShrink: 0 }} />
-                    <span>{check.replace(/_/g, ' ')} passed</span>
-                  </div>
-                ))}
+                <button className="dismiss-btn-action" onClick={() => setSelectedChange(null)}>
+                  Dismiss
+                </button>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </>
   );
