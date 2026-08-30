@@ -12,7 +12,7 @@ build/
 venv/
 
 # Database runtime file
-satellite.db
+# satellite.db tracked for repo satellite DB cache
 
 # Node / Frontend
 node_modules/
