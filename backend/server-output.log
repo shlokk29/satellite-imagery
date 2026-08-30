@@ -1,0 +1,13 @@
+Successfully loaded 6 multi-location demonstration AOIs.
+INFO:     127.0.0.1:56790 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61419 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61419 - "GET /locations HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59594 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59594 - "GET /scenes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61419 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55501 - "GET /static/mixed_ref.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54540 - "GET /static/mixed_tgt.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59594 - "GET /changes?location=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:59594 - "POST /change-detect?before_id=mixed_ref&after_id=mixed_tgt&location_id=mixed HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54540 - "GET /static/mixed_change_mask.png HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55501 - "GET /static/mixed_aligned_target.png HTTP/1.1" 200 OK
